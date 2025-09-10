@@ -11,7 +11,7 @@ export class EmailVerificationService {
     try {
       console.log('📧 Sending verification code to:', username);
       
-      const response = await axios.post(`${API_BASE_URL}/email-verification`, {
+      const response = await axios.post(`${API_BASE_URL}/verify`, {
         username,
         action: 'send_verification_code'
       });
@@ -33,7 +33,7 @@ export class EmailVerificationService {
     try {
       console.log('🔍 Verifying code for user:', username);
       
-      const response = await axios.post(`${API_BASE_URL}/email-verification`, {
+      const response = await axios.post(`${API_BASE_URL}/verify`, {
         username,
         confirmationCode,
         action: 'verify_code'
@@ -55,7 +55,7 @@ export class EmailVerificationService {
     try {
       console.log('🔍 Checking verification status for:', username);
       
-      const response = await axios.post(`${API_BASE_URL}/email-verification`, {
+      const response = await axios.post(`${API_BASE_URL}/verify`, {
         username,
         action: 'check_verification_status'
       });
