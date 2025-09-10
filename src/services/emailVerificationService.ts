@@ -76,7 +76,11 @@ export class EmailVerificationService {
       });
       
       console.log('✅ Verification status check successful:', response.data);
-      return response.data;
+      
+      // ALWAYS treat existing users as needing verification (same as new users)
+      // This overrides the API response to ensure existing users go through verification
+      console.log('📧 Forcing verification for existing user (treating as new user)');
+      return { needsVerification: true };
     } catch (error: any) {
       console.error('❌ Error checking verification status:', error);
       
