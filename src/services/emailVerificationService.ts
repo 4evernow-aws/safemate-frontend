@@ -55,12 +55,20 @@ export class EmailVerificationService {
     try {
       console.log('🔍 Checking verification status for:', username);
       
-      // This would typically call a Cognito API to check user status
-      // For now, we'll return a default response
-      return { needsVerification: false };
+      const response = await axios.post(`${API_BASE_URL}/email-verification`, {
+        username,
+        action: 'check_verification_status'
+      });
+      
+      console.log('✅ Verification status check successful:', response.data);
+      return response.data;
     } catch (error: any) {
       console.error('❌ Error checking verification status:', error);
-      throw new Error(error.response?.data?.error || error.message || 'Failed to check verification status');
+      
+      // If the API call fails, assume user needs verification to be safe
+      // This ensures existing users are treated the same as new users
+      console.log('⚠️ API call failed, assuming user needs verification');
+      return { needsVerification: true };
     }
   }
 }

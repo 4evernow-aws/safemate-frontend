@@ -612,6 +612,27 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     try {
       console.log('🔍 Starting sign in process...');
       
+      // FIRST: Always check if user needs email verification (for both new and existing users)
+      console.log('📧 Checking email verification status for user:', formData.username);
+      
+      try {
+        const { EmailVerificationService } = await import('../services/emailVerificationService');
+        const verificationStatus = await EmailVerificationService.checkVerificationStatus(formData.username);
+        
+        if (verificationStatus.needsVerification) {
+          console.log('📧 User needs email verification, showing verification form...');
+          setNeedsVerification(true);
+          setVerificationUsername(formData.username);
+          setMode('signin-verify');
+          setError('Please verify your email address before signing in. Check your inbox for a verification code.');
+          setLoading(false);
+          return;
+        }
+      } catch (verificationCheckError) {
+        console.log('⚠️ Could not check verification status, proceeding with sign-in...');
+        // Continue with normal sign-in flow if verification check fails
+      }
+      
       // Attempt to sign in directly
       const signInResult = await signIn({
         username: formData.username,
@@ -659,13 +680,13 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     } catch (err: any) {
       console.error('❌ Sign in error:', err);
       
-      // Check if user needs email verification
+      // Check if user needs email verification (fallback for UserNotConfirmedException)
       if (err.code === 'UserNotConfirmedException' || 
           err.name === 'UserNotConfirmedException' ||
           err.message?.includes('not confirmed') ||
           err.message?.includes('verification')) {
         
-        console.log('📧 User needs email verification, showing verification form...');
+        console.log('📧 User needs email verification (exception caught), showing verification form...');
         setNeedsVerification(true);
         setVerificationUsername(formData.username);
         setMode('signin-verify');
