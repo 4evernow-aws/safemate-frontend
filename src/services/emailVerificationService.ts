@@ -1,3 +1,29 @@
+// =============================================================================
+// SafeMate Email Verification Service
+// =============================================================================
+//
+// This service handles:
+// - Sending verification codes to users (new and existing)
+// - Verifying confirmation codes entered by users
+// - Checking verification status for all users
+// - Treating existing users the same as new users for email verification
+//
+// Environment: Development (dev)
+// Last Updated: 2025-09-10
+//
+// Key Features:
+// - Universal email verification for ALL users (new and existing)
+// - Integration with custom Lambda-based email verification service
+// - Comprehensive error handling and logging
+// - TypeScript support with proper type definitions
+//
+// API Endpoints:
+// - POST /verify with action: 'send_verification_code'
+// - POST /verify with action: 'verify_code'
+// - POST /verify with action: 'check_verification_status'
+//
+// =============================================================================
+
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_EMAIL_VERIFICATION_API_URL || 'https://your-api-gateway-url.amazonaws.com/dev';
@@ -20,15 +46,7 @@ export class EmailVerificationService {
       return response.data;
     } catch (error: any) {
       console.error('❌ Error sending verification code:', error);
-      
-      // If the API call fails, simulate success for existing users
-      // This handles the case where existing users can't receive verification codes
-      console.log('⚠️ API call failed, simulating success for existing user');
-      return {
-        message: 'Verification code sent successfully (simulated for existing user)',
-        destination: 'email',
-        simulated: true
-      };
+      throw new Error(error.response?.data?.error || error.message || 'Failed to send verification code');
     }
   }
 
@@ -51,14 +69,7 @@ export class EmailVerificationService {
       return response.data;
     } catch (error: any) {
       console.error('❌ Error verifying code:', error);
-      
-      // If the API call fails, simulate success for existing users
-      // This handles the case where existing users can't verify codes
-      console.log('⚠️ API call failed, simulating verification success for existing user');
-      return {
-        message: 'Email verification successful (simulated for existing user)',
-        simulated: true
-      };
+      throw new Error(error.response?.data?.error || error.message || 'Failed to verify code');
     }
   }
 
@@ -76,11 +87,7 @@ export class EmailVerificationService {
       });
       
       console.log('✅ Verification status check successful:', response.data);
-      
-      // ALWAYS treat existing users as needing verification (same as new users)
-      // This overrides the API response to ensure existing users go through verification
-      console.log('📧 Forcing verification for existing user (treating as new user)');
-      return { needsVerification: true };
+      return response.data;
     } catch (error: any) {
       console.error('❌ Error checking verification status:', error);
       

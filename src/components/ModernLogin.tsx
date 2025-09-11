@@ -1,3 +1,26 @@
+// =============================================================================
+// SafeMate Modern Login Component
+// =============================================================================
+//
+// This component handles:
+// - User authentication (sign in/sign up)
+// - Email verification for both new and existing users
+// - Password reset functionality
+// - Onboarding flow integration
+// - Wallet creation and management
+//
+// Environment: Development (dev)
+// Last Updated: 2025-09-10
+//
+// Key Features:
+// - Universal email verification for ALL users (new and existing)
+// - Integration with custom email verification service
+// - Modern Material-UI design
+// - Comprehensive error handling and user feedback
+// - Responsive design for all screen sizes
+//
+// =============================================================================
+
 import React, { useState, useEffect } from 'react';
 import { signIn, signUp, confirmSignUp, resendSignUpCode, resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 import {
@@ -784,11 +807,9 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     setError('');
 
     try {
-      // Confirm the user account
-      await confirmSignUp({
-        username: formData.username,
-        confirmationCode: formData.confirmationCode
-      });
+      // Confirm the user account using our email verification service
+      const { EmailVerificationService } = await import('../services/emailVerificationService');
+      await EmailVerificationService.verifyCode(formData.username, formData.confirmationCode);
       
       setSuccess('Account confirmed! You have been verified.');
       console.log('✅ Account confirmed successfully');
@@ -839,9 +860,9 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     try {
       console.log('🔄 Resending verification code to:', formData.username);
       
-      const resendResult = await resendSignUpCode({
-        username: formData.username
-      });
+      // Use our email verification service instead of Cognito directly
+      const { EmailVerificationService } = await import('../services/emailVerificationService');
+      const resendResult = await EmailVerificationService.sendVerificationCode(formData.username);
       
       console.log('✅ Resend successful');
       console.log('🔍 Resend result:', resendResult);
@@ -1658,9 +1679,8 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
                       onClick={async () => {
                         try {
                           setLoading(true);
-                          await resendSignUpCode({
-                            username: verificationUsername
-                          });
+                          const { EmailVerificationService } = await import('../services/emailVerificationService');
+                          await EmailVerificationService.sendVerificationCode(verificationUsername);
                           setSuccess('New verification code sent to your email!');
                         } catch (err: any) {
                           setError(err.message || 'Failed to resend code');
@@ -2059,7 +2079,7 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                       <Button
-                        onClick={handleResendCode}
+                        onClick={handleResendSignInCode}
                         disabled={loading}
                         color="primary"
                         size="small"
@@ -2389,9 +2409,8 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
                     onClick={async () => {
                       try {
                         setLoading(true);
-                        await resendSignUpCode({
-                          username: verificationUsername
-                        });
+                        const { EmailVerificationService } = await import('../services/emailVerificationService');
+                        await EmailVerificationService.sendVerificationCode(verificationUsername);
                         setSuccess('New verification code sent to your email!');
                       } catch (err: any) {
                         setError(err.message || 'Failed to resend code');
@@ -2587,7 +2606,7 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
 
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                     <Button
-                      onClick={handleResendCode}
+                      onClick={handleResendSignInCode}
                       disabled={loading}
                       color="primary"
                       size="small"
