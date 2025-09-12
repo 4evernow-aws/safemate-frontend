@@ -215,39 +215,8 @@ export class BlockchainService {
   // TOKEN OPERATIONS
   // =======================
 
-  /**
-   * Create MATE token (platform utility token)
-   */
-  static async createMateToken(): Promise<TokenCreationResponse> {
-    try {
-      const response = await this.makeAuthenticatedRequest('/tokens/mate/create', 'POST');
-      
-      if (response.success) {
-        // Update user's token balance in profile
-        await UserService.updateUserProfile({
-          mateTokenBalance: response.data?.initialSupply || 0,
-          lastBlockchainActivity: new Date().toISOString()
-        });
-
-        return {
-          success: true,
-          tokenId: response.tokenId,
-          transactionId: response.transactionId
-        };
-      } else {
-        return {
-          success: false,
-          error: response.error || 'Token creation failed'
-        };
-      }
-    } catch (error) {
-      console.error('Error creating MATE token:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
-    }
-  }
+  // REMOVED: MATE token creation functionality
+  // SafeMate is a document storage platform, not a token creation platform
 
   /**
    * Transfer tokens to another account

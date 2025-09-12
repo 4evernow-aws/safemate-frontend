@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeMate Architecture Diagram</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #5fb3d4 0%, #4a90e2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .architecture-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #5fb3d4;
+            padding-bottom: 10px;
+        }
+        
+        .diagram-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+        }
+        
+        .layer {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .component {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .component:hover {
+            transform: translateY(-5px);
+        }
+        
+        .component.frontend {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .component.api {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .component.lambda {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .component.database {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+        
+        .component.blockchain {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+        }
+        
+        .component.auth {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #5fb3d4;
+            margin: 0 20px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #5fb3d4;
+        }
+        
+        .feature-card h3 {
+            color: #333;
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+        
+        .feature-card ul {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .tech-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .tech-item h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .tech-item p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .free-tier-badge {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .footer {
+            background: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .layer {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+            
+            .component {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SafeMate Architecture</h1>
+            <p>Secure File Management Platform Powered by Hedera Blockchain</p>
+            <div class="free-tier-badge">AWS Free Tier Compliant</div>
+        </div>
+        
+        <div class="content">
+            <!-- Architecture Overview -->
+            <div class="architecture-section">
+                <h2 class="section-title">System Architecture</h2>
+                <div class="diagram-container">
+                    <!-- Frontend Layer -->
+                    <div class="layer">
+                        <div class="component frontend">
+                            <h3>React Frontend</h3>
+                            <p>Vite + TypeScript</p>
+                            <p>Material-UI</p>
+                            <p>localhost:5173</p>
+                        </div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <!-- API Gateway Layer -->
+                    <div class="layer">
+                        <div class="component api">
+                            <h3>API Gateway</h3>
+                            <p>RESTful APIs</p>
+                            <p>CORS Enabled</p>
+                        </div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <!-- Lambda Services Layer -->
+                    <div class="layer">
+                        <div class="component lambda">
+                            <h3>User Onboarding</h3>
+                            <p>Registration & Wallets</p>
+                        </div>
+                        <div class="component lambda">
+                            <h3>Token Vault</h3>
+                            <p>Secret Management</p>
+                        </div>
+                        <div class="component lambda">
+                            <h3>Wallet Manager</h3>
+                            <p>Balance & Transfers</p>
+                        </div>
+                        <div class="component lambda">
+                            <h3>Hedera Service</h3>
+                            <p>Blockchain Ops</p>
+                        </div>
+                        <div class="component lambda">
+                            <h3>Group Manager</h3>
+                            <p>Collaboration</p>
+                        </div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <!-- Data & Auth Layer -->
+                    <div class="layer">
+                        <div class="component database">
+                            <h3>DynamoDB</h3>
+                            <p>User Data</p>
+                            <p>File Metadata</p>
+                        </div>
+                        <div class="component auth">
+                            <h3>AWS Cognito</h3>
+                            <p>Authentication</p>
+                            <p>Email Verification</p>
+                        </div>
+                        <div class="component database">
+                            <h3>KMS</h3>
+                            <p>Encryption Keys</p>
+                            <p>Secure Storage</p>
+                        </div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <!-- Blockchain Layer -->
+                    <div class="layer">
+                        <div class="component blockchain">
+                            <h3>Hedera Testnet</h3>
+                            <p>Real Wallets</p>
+                            <p>File Storage</p>
+                            <p>Token Operations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Key Features -->
+            <div class="architecture-section">
+                <h2 class="section-title">Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>🔐 Secure Authentication</h3>
+                        <ul>
+                            <li>Direct Cognito email verification</li>
+                            <li>Free Tier compliant</li>
+                            <li>No custom Lambda functions</li>
+                            <li>Real-time user management</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>💰 Blockchain Integration</h3>
+                        <ul>
+                            <li>Real Hedera testnet wallets</li>
+                            <li>MATE token rewards system</li>
+                            <li>Secure file storage on blockchain</li>
+                            <li>Transaction history tracking</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>👥 Team Collaboration</h3>
+                        <ul>
+                            <li>Group management</li>
+                            <li>Shared wallet access</li>
+                            <li>File sharing permissions</li>
+                            <li>Activity tracking</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>📁 File Management</h3>
+                        <ul>
+                            <li>Secure upload and storage</li>
+                            <li>Directory organization</li>
+                            <li>Metadata management</li>
+                            <li>Access control</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Technology Stack -->
+            <div class="architecture-section">
+                <h2 class="section-title">Technology Stack</h2>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <h4>Frontend</h4>
+                        <p>React 18, TypeScript, Vite, Material-UI</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Backend</h4>
+                        <p>AWS Lambda, API Gateway, Node.js</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Database</h4>
+                        <p>DynamoDB, KMS Encryption</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Authentication</h4>
+                        <p>AWS Cognito, Direct Email Verification</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Blockchain</h4>
+                        <p>Hedera Testnet, Hedera SDK</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Infrastructure</h4>
+                        <p>Terraform, S3, CloudFront</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Free Tier Compliance -->
+            <div class="architecture-section">
+                <h2 class="section-title">AWS Free Tier Compliance</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>✅ Optimized Services</h3>
+                        <ul>
+                            <li>S3 Static Website Hosting (no ALB)</li>
+                            <li>KMS + DynamoDB (no Secrets Manager)</li>
+                            <li>Direct Cognito email verification</li>
+                            <li>Minimal Lambda memory allocation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>📊 Resource Limits</h3>
+                        <ul>
+                            <li>Lambda: 1M free requests/month</li>
+                            <li>DynamoDB: 25GB free storage</li>
+                            <li>API Gateway: 1M free API calls</li>
+                            <li>Cognito: 50K free MAUs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Environment Configuration -->
+            <div class="architecture-section">
+                <h2 class="section-title">Environment Configuration</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>🔧 Development</h3>
+                        <ul>
+                            <li>User Pool: dev-safemate-user-pool-v2</li>
+                            <li>API Stage: /dev</li>
+                            <li>App URL: http://localhost:5173</li>
+                            <li>Debug Mode: Enabled</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🚀 Pre-Production</h3>
+                        <ul>
+                            <li>User Pool: preprod-safemate-user-pool-v2</li>
+                            <li>API Stage: /preprod</li>
+                            <li>App URL: CloudFront distribution</li>
+                            <li>Debug Mode: Disabled</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>SafeMate Architecture Diagram - Last Updated: 2025-09-12</p>
+            <p>Free Tier Compliant | Direct Cognito Email Verification | Real Hedera Integration</p>
+        </div>
+    </div>
+</body>
+</html>

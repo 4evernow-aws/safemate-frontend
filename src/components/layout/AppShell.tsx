@@ -196,16 +196,16 @@ export default function AppShell({ children }: AppShellProps) {
         });
       }
 
-      // Add account balance notification if user has MATE tokens
+      // Add account balance notification if user has files stored
       if (balance.success && balance.data?.tokens && Object.keys(balance.data.tokens).length > 0) {
-        const mateBalance = balance.data.tokens[config.mateTokenId];
-        if (mateBalance && mateBalance > 0) {
+        const fileCount = Object.keys(balance.data.tokens).length;
+        if (fileCount > 0) {
           realNotifications.push({
-            id: 'mate-balance',
-            icon: 'person',
-            title: `You have ${mateBalance} MATE tokens`,
-            description: 'Keep uploading to earn more rewards!',
-            bgColor: 'warning.main',
+            id: 'file-storage',
+            icon: 'folder',
+            title: `You have ${fileCount} files stored`,
+            description: 'Your files are secure on Hedera testnet!',
+            bgColor: 'success.main',
             timestamp: new Date().toISOString()
           });
         }
@@ -266,8 +266,8 @@ export default function AppShell({ children }: AppShellProps) {
       {
         id: 'mock-2',
         icon: 'person',
-        title: 'Earned 5 MATE tokens',
-        description: 'File upload reward • 5 minutes ago',
+        title: 'File uploaded successfully',
+        description: 'Stored on Hedera testnet • 5 minutes ago',
         bgColor: 'warning.main'
       },
       {

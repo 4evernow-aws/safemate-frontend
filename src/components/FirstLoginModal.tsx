@@ -218,7 +218,7 @@ export default function FirstLoginModal({ open, onClose }: FirstLoginModalProps)
                 • Creating your Hedera account keys<br/>
                 • Connecting to secure network<br/>
                 • Initializing secure file storage<br/>
-                • Preparing your $MATE token integration
+                • Preparing your Hedera testnet integration
               </Typography>
             </Alert>
             

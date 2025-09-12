@@ -214,11 +214,11 @@ export const landingContent: LandingPageContent = {
   },
   
   tokenomics: {
-    title: "Tokenomics",
-    subtitle: "$MATE Token Powers the SafeMate Ecosystem",
-    description: "$MATE is the token that will be used to power and govern the SafeMate ecosystem. As with any good project, $MATE token will grow in utility value over time and adoption. The utility of $MATE will attract features and benefits for holders, provide liquidity on exchanges, and secure the network ensuring the product is in line with compliance obligations.",
-    cta_text: "Learn About $MATE",
-    cta_link: "https://forevernow.world/",
+    title: "Rewards & Storage",
+    subtitle: "Earn MATE Rewards on Hedera-Powered Storage",
+    description: "SafeMate uses Hedera Hashgraph (HBAR) for secure blockchain storage, while MATE tokens serve as reward points for platform participation. Upload files, earn MATE rewards, and enjoy secure document storage powered by Hedera's distributed ledger technology.",
+    cta_text: "Learn More",
+    cta_link: "/faq",
     token_info: {
       initial_supply: "10,000,000,000",
       max_supply: "10,000,000,000", 

@@ -1,23 +1,25 @@
 // =============================================================================
 // SafeMate Modern Login Component
 // =============================================================================
-//
-// This component handles:
-// - User authentication (sign in/sign up)
-// - Email verification for both new and existing users
+// 
+// This component handles user authentication including:
+// - User signup and signin
+// - Email verification using Cognito directly (Free Tier compliant)
 // - Password reset functionality
-// - Onboarding flow integration
-// - Wallet creation and management
+// - Account type selection (Personal/Team)
+// - Real Hedera testnet wallet integration
 //
 // Environment: Development (dev)
-// Last Updated: 2025-09-10
-//
+// Last Updated: 2025-09-12
+// Status: Fixed email verification to use Cognito directly (no Lambda/API)
+// Fixed: Username required error and undefined email destination issues
+// 
 // Key Features:
-// - Universal email verification for ALL users (new and existing)
-// - Integration with custom email verification service
-// - Modern Material-UI design
+// - Direct Cognito email verification (Free Tier compliant)
+// - Real Hedera testnet wallet creation
 // - Comprehensive error handling and user feedback
-// - Responsive design for all screen sizes
+// - Modern Material-UI design
+// - Support for both new and existing users
 //
 // =============================================================================
 
@@ -635,26 +637,8 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     try {
       console.log('🔍 Starting sign in process...');
       
-      // FIRST: Always check if user needs email verification (for both new and existing users)
-      console.log('📧 Checking email verification status for user:', formData.username);
-      
-      try {
-        const { EmailVerificationService } = await import('../services/emailVerificationService');
-        const verificationStatus = await EmailVerificationService.checkVerificationStatus(formData.username);
-        
-        if (verificationStatus.needsVerification) {
-          console.log('📧 User needs email verification, showing verification form...');
-          setNeedsVerification(true);
-          setVerificationUsername(formData.username);
-          setMode('signin-verify');
-          setError('Please verify your email address before signing in. Check your inbox for a verification code.');
-          setLoading(false);
-          return;
-        }
-      } catch (verificationCheckError) {
-        console.log('⚠️ Could not check verification status, proceeding with sign-in...');
-        // Continue with normal sign-in flow if verification check fails
-      }
+      // Let Cognito handle email verification naturally during sign-in
+      console.log('🔍 Attempting sign-in with Cognito...');
       
       // Attempt to sign in directly
       const signInResult = await signIn({
@@ -778,12 +762,17 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
         const deliveryDetails = signUpResult.nextStep.codeDeliveryDetails;
         console.log('📧 Code delivery method:', deliveryDetails?.deliveryMedium);
         console.log('📧 Code sent to:', deliveryDetails?.destination);
+        console.log('📧 Full delivery details:', deliveryDetails);
         
-        setSuccess(`Verification code sent to ${deliveryDetails?.destination || 'your email'}. Please check your inbox.`);
+        // Use the email from formData if destination is not available
+        const emailDestination = deliveryDetails?.destination || formData.username;
+        setSuccess(`Verification code sent to ${emailDestination}. Please check your inbox.`);
       } else {
         setSuccess('Account created! Please check your email for verification code.');
       }
       
+      // Set the verification username for resend functionality
+      setVerificationUsername(formData.username);
       setMode('confirm');
     } catch (err: any) {
       console.error('❌ Signup error details:', err);
@@ -807,9 +796,11 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     setError('');
 
     try {
-      // Confirm the user account using our email verification service
-      const { EmailVerificationService } = await import('../services/emailVerificationService');
-      await EmailVerificationService.verifyCode(formData.username, formData.confirmationCode);
+      // Confirm the user account using Cognito directly (Free Tier compliant)
+      await confirmSignUp({
+        username: formData.username,
+        confirmationCode: formData.confirmationCode
+      });
       
       setSuccess('Account confirmed! You have been verified.');
       console.log('✅ Account confirmed successfully');
@@ -860,18 +851,13 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     try {
       console.log('🔄 Resending verification code to:', formData.username);
       
-      // Use our email verification service instead of Cognito directly
-      const { EmailVerificationService } = await import('../services/emailVerificationService');
-      const resendResult = await EmailVerificationService.sendVerificationCode(formData.username);
+      // Use Cognito directly for email verification (Free Tier compliant)
+      const resendResult = await resendSignUpCode({
+        username: formData.username
+      });
       
-      console.log('✅ Resend successful');
-      console.log('🔍 Resend result:', resendResult);
-      
-      if (resendResult.destination) {
-        setSuccess(`New verification code sent to ${resendResult.destination}. Please check your inbox.`);
-      } else {
-        setSuccess('New verification code sent! Please check your email.');
-      }
+      console.log('✅ Resend successful via Cognito');
+      setSuccess('New verification code sent! Please check your email.');
     } catch (err: any) {
       console.error('❌ Resend code error:', err);
       setError(err.message || 'Failed to resend code');
@@ -887,18 +873,26 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     try {
       console.log('🔄 Resending verification code for sign-in to:', verificationUsername);
       
-      // Import the email verification service
-      const { EmailVerificationService } = await import('../services/emailVerificationService');
-      
-      const resendResult = await EmailVerificationService.sendVerificationCode(verificationUsername);
-      
-      console.log('✅ Resend successful for sign-in verification');
-      console.log('🔍 Resend result:', resendResult);
-      
-      if (resendResult.destination) {
-        setSuccess(`New verification code sent to ${resendResult.destination}. Please check your inbox.`);
-      } else {
-        setSuccess('New verification code sent! Please check your email.');
+      // Use Cognito directly for email verification (Free Tier compliant)
+      try {
+        const resendResult = await resendSignUpCode({
+          username: verificationUsername
+        });
+        console.log('✅ Verification code sent successfully via Cognito');
+        setSuccess('Verification code sent to your email. Please check your inbox.');
+      } catch (resendErr: any) {
+        console.log('⚠️ Could not send verification code via Cognito:', resendErr.message);
+        
+        // Provide helpful guidance based on error type
+        if (resendErr.name === 'NotAuthorizedException' && resendErr.message?.includes('Auto verification not turned on')) {
+          setError('Email verification is required. Please check your email for the verification code, or contact support for assistance.');
+        } else if (resendErr.name === 'InvalidParameterException' && resendErr.message?.includes('User is already confirmed')) {
+          setError('Your account is already confirmed. If you need email verification, please contact support for assistance.');
+        } else if (resendErr.name === 'UserNotFoundException') {
+          setError('User not found. Please check your email address and try again.');
+        } else {
+          setError(`Failed to send verification code: ${resendErr.message}`);
+        }
       }
     } catch (err: any) {
       console.error('❌ Resend code error for sign-in:', err);
@@ -933,11 +927,11 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
         // If direct sign-in fails, try the confirmation code approach
         // This handles cases where the user might need to confirm their account
         try {
-          // Import the email verification service
-          const { EmailVerificationService } = await import('../services/emailVerificationService');
-          
-          // Verify the code using our service
-          await EmailVerificationService.verifyCode(verificationUsername, formData.confirmationCode);
+          // Verify the code using Cognito directly (Free Tier compliant)
+          await confirmSignUp({
+            username: verificationUsername,
+            confirmationCode: formData.confirmationCode
+          });
           
           console.log('✅ Email verification successful, proceeding with sign-in...');
           setSuccess('Email verified successfully! Signing you in...');
@@ -1679,8 +1673,9 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
                       onClick={async () => {
                         try {
                           setLoading(true);
-                          const { EmailVerificationService } = await import('../services/emailVerificationService');
-                          await EmailVerificationService.sendVerificationCode(verificationUsername);
+                          await resendSignUpCode({
+                            username: verificationUsername
+                          });
                           setSuccess('New verification code sent to your email!');
                         } catch (err: any) {
                           setError(err.message || 'Failed to resend code');
@@ -2409,8 +2404,9 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
                     onClick={async () => {
                       try {
                         setLoading(true);
-                        const { EmailVerificationService } = await import('../services/emailVerificationService');
-                        await EmailVerificationService.sendVerificationCode(verificationUsername);
+                        await resendSignUpCode({
+                          username: verificationUsername
+                        });
                         setSuccess('New verification code sent to your email!');
                       } catch (err: any) {
                         setError(err.message || 'Failed to resend code');

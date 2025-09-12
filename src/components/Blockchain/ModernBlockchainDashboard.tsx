@@ -169,7 +169,7 @@ export default function ModernBlockchainDashboard({ className = '' }: ModernBloc
           description: getTransactionDescription(tx),
           amount: getTransactionAmount(tx),
           currency: getTransactionCurrency(tx),
-          reward: '', // MATE rewards would come from token transfers
+          reward: '', // File storage rewards
           time: formatTransactionTime(tx.consensus_timestamp),
           status: tx.result === 'SUCCESS' ? 'completed' : 'failed'
         }));
@@ -282,7 +282,7 @@ export default function ModernBlockchainDashboard({ className = '' }: ModernBloc
   const getTransactionCurrency = (tx: any): string => {
     // Check if it's a token transfer
     if (tx.token_transfers && tx.token_transfers.length > 0) {
-      return 'MATE'; // Assume MATE token for now
+      return 'NFT'; // File/folder NFTs
     }
     return 'ℏ';
   };
@@ -489,7 +489,7 @@ export default function ModernBlockchainDashboard({ className = '' }: ModernBloc
                 Hedera Wallet 💰
               </Typography>
               <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
-                Manage your HBAR and MATE tokens on the Hedera network
+                Manage your HBAR wallet and MATE rewards on Hedera testnet
               </Typography>
             </Box>
             
@@ -691,8 +691,8 @@ export default function ModernBlockchainDashboard({ className = '' }: ModernBloc
               
               <Grid item xs={12} md={4}>
                 <ModernActionCard
-                  title="Earn MATE"
-                  description="Upload files to earn MATE tokens"
+                  title="Earn MATE Rewards"
+                  description="Upload files to earn MATE reward points"
                   icon={<TokenIcon />}
                   buttonText="Start Earning"
                   onClick={() => window.location.href = '/app/files'}
@@ -862,7 +862,7 @@ export default function ModernBlockchainDashboard({ className = '' }: ModernBloc
                               <ListItemText primary="Transactions sent" secondary="12 this month" />
                             </ListItem>
                             <ListItem disablePadding>
-                              <ListItemText primary="MATE tokens earned" secondary="75 tokens" />
+                              <ListItemText primary="Files stored" secondary="75 files" />
                             </ListItem>
                             <ListItem disablePadding>
                               <ListItemText primary="Storage costs" secondary="0.05 ℏ total" />

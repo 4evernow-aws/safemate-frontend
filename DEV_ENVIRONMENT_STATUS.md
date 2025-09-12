@@ -63,7 +63,7 @@
 - **API Base URLs**: All pointing to dev environment
 - **Cognito Configuration**: Dev user pool and client (UPDATED)
 - **Hedera Network**: Testnet
-- **Token ID**: 0.0.7779374 (MATE token)
+- **Network**: Hedera testnet for file storage
 
 ## 🔧 Recent Fixes Applied
 - ✅ **Authentication Issue Fixed**: Created new Cognito client without client secret

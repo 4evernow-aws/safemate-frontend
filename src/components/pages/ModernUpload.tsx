@@ -740,7 +740,7 @@ export default function ModernUpload() {
                     </ListItemIcon>
                     <ListItemText
                       primary="Earn rewards"
-                      secondary="Get MATE tokens for each file uploaded"
+                      secondary="Earn MATE reward points for each file uploaded"
                     />
                   </ListItem>
                   <ListItem sx={{ px: 0 }}>

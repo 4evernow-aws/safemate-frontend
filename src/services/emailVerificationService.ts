@@ -9,24 +9,30 @@
 // - Treating existing users the same as new users for email verification
 //
 // Environment: Development (dev)
-// Last Updated: 2025-09-10
+// Last Updated: 2025-09-11
+// Status: Fixed - simplified Lambda function to avoid layer dependency issues
 //
 // Key Features:
 // - Universal email verification for ALL users (new and existing)
-// - Integration with custom Lambda-based email verification service
+// - Integration with user onboarding Lambda function
 // - Comprehensive error handling and logging
 // - TypeScript support with proper type definitions
+// - CORS-compliant API integration
 //
 // API Endpoints:
-// - POST /verify with action: 'send_verification_code'
-// - POST /verify with action: 'verify_code'
-// - POST /verify with action: 'check_verification_status'
+// - POST /onboarding/verify with action: 'send_verification_code'
+// - POST /onboarding/verify with action: 'verify_code'
+// - POST /onboarding/verify with action: 'check_verification_status'
+//
+// Note: Uses user onboarding API Gateway for email verification
+// to leverage existing CORS configuration and infrastructure
 //
 // =============================================================================
 
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_EMAIL_VERIFICATION_API_URL || 'https://your-api-gateway-url.amazonaws.com/dev';
+// Temporarily use onboarding API until email verification API is deployed
+const API_BASE_URL = import.meta.env.VITE_ONBOARDING_API_URL || 'https://527ye7o1j0.execute-api.ap-southeast-2.amazonaws.com/dev';
 
 export class EmailVerificationService {
   /**
@@ -37,7 +43,7 @@ export class EmailVerificationService {
     try {
       console.log('📧 Sending verification code to:', username);
       
-      const response = await axios.post(`${API_BASE_URL}/verify`, {
+      const response = await axios.post(`${API_BASE_URL}/onboarding/verify`, {
         username,
         action: 'send_verification_code'
       });
@@ -59,7 +65,7 @@ export class EmailVerificationService {
     try {
       console.log('🔍 Verifying code for user:', username);
       
-      const response = await axios.post(`${API_BASE_URL}/verify`, {
+      const response = await axios.post(`${API_BASE_URL}/onboarding/verify`, {
         username,
         confirmationCode,
         action: 'verify_code'
@@ -81,7 +87,7 @@ export class EmailVerificationService {
     try {
       console.log('🔍 Checking verification status for:', username);
       
-      const response = await axios.post(`${API_BASE_URL}/verify`, {
+      const response = await axios.post(`${API_BASE_URL}/onboarding/verify`, {
         username,
         action: 'check_verification_status'
       });

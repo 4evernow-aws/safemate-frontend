@@ -208,11 +208,11 @@ export default function FileDetailsModal({ open, onClose, file }: FileDetailsMod
               <Box>
                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                   <TokenIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  MATE Rewards
+                  Blockchain Storage
                 </Typography>
                 <Alert severity="success" sx={{ borderRadius: 2 }}>
                   <Typography variant="body2">
-                    This file has earned you <strong>+{file.mateReward} MATE tokens</strong>!
+                    This file is securely stored on <strong>Hedera testnet</strong>!
                   </Typography>
                 </Alert>
               </Box>

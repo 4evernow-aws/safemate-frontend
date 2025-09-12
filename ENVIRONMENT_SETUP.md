@@ -15,9 +15,10 @@
 ## 📁 **Environment File Structure**
 
 ```
-apps/web/safemate/
+migration-20250909-191548/safemate-frontend/
 ├── .env                    # Base environment (fallback)
-├── .env.dev               # Development environment
+├── .env.development        # Development environment (used by npm run dev)
+├── .env.dev               # Development environment (not used by dev server)
 ├── .env.preprod           # Pre-production environment  
 ├── .env.production        # Production environment
 ├── .env.local             # Local overrides (gitignored)
@@ -29,7 +30,7 @@ apps/web/safemate/
 ### Development Environment
 ```bash
 npm run dev
-# Uses: .env.dev (via --mode development)
+# Uses: .env.development (via --mode development)
 # URL: http://localhost:5173/
 ```
 
@@ -57,11 +58,13 @@ Vite automatically loads environment files based on the `--mode` flag:
 
 ## 📋 **Environment Configurations**
 
-### Development (`.env.dev`)
+### Development (`.env.development`)
 - **Cognito Pool**: `ap-southeast-2_2fMWFFs8i`
+- **Client ID**: `68d7oqbrbh3pneab0dc0if0nf3`
 - **API Stage**: `/dev`
 - **Network**: Testnet
 - **Purpose**: Local development and testing
+- **Email Verification**: Direct Cognito (Free Tier compliant)
 
 ### Pre-Production (`.env.preprod`)
 - **Cognito Pool**: `ap-southeast-2_pMo5BXFiM`
@@ -87,7 +90,7 @@ Vite automatically loads environment files based on the `--mode` flag:
    - Keep `.env.local` for local-only overrides
 
 3. **Don't run `npm run dev` from the wrong directory**
-   - Always run from `apps/web/safemate/`
+   - Always run from `migration-20250909-191548/safemate-frontend/`
    - The root directory doesn't have a `dev` script
 
 ## 🔍 **Troubleshooting**
@@ -99,7 +102,7 @@ cd D:\cursor_projects\safemate_v2
 npm run dev  # Error: Missing script
 
 # ✅ Correct directory
-cd D:\cursor_projects\safemate_v2\apps\web\safemate
+cd D:\cursor_projects\safemate_v2\migration-20250909-191548\safemate-frontend
 npm run dev  # Success!
 ```
 
@@ -146,5 +149,6 @@ npm run dev
 
 ---
 
-**Last Updated**: 2025-08-29
+**Last Updated**: 2025-09-12
 **Maintainer**: Development Team
+**Status**: Updated for Free Tier compliance and direct Cognito email verification

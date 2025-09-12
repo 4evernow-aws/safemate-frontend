@@ -2,7 +2,7 @@
 
 ## 🎯 **Environment Separation Strategy**
 
-This guide explains how to properly manage different environments (dev, preprod, production) for the SafeMate application.
+This guide explains how to properly manage different environments (dev, preprod) for the SafeMate application.
 
 ## 📁 **Environment File Structure**
 
@@ -10,7 +10,6 @@ This guide explains how to properly manage different environments (dev, preprod,
 .env                    # Base configuration (fallback)
 .env.development        # Development environment (local dev)
 .env.preprod           # Pre-production environment (staging)
-.env.production        # Production environment (live)
 .env.local             # Local overrides (gitignored)
 ```
 
@@ -29,11 +28,6 @@ npm run dev:preprod      # Start dev server with preprod config
 npm run build:preprod    # Build for preprod environment
 ```
 
-### **Production (Live)**
-```bash
-npm run dev:production   # Start dev server with production config
-npm run build            # Build for production (default)
-```
 
 ## 🔧 **How It Works**
 
@@ -45,30 +39,31 @@ npm run build            # Build for production (default)
 ### **Mode Detection**
 - `npm run dev` → `--mode development` → loads `.env.development`
 - `npm run dev:preprod` → `--mode preprod` → loads `.env.preprod`
-- `npm run dev:production` → `--mode production` → loads `.env.production`
 
 ## 📋 **Environment Configurations**
 
 ### **Development Environment**
 - **User Pool**: `dev-safemate-user-pool-v2`
 - **User Pool ID**: `ap-southeast-2_2fMWFFs8i`
-- **API URLs**: `*.execute-api.ap-southeast-2.amazonaws.com/dev`
+- **Client ID**: `68d7oqbrbh3pneab0dc0if0nf3`
+- **API URLs**: 
+  - Onboarding: `https://kbfs45jmnk.execute-api.ap-southeast-2.amazonaws.com/dev`
+  - Vault: `https://73r0aby0k4.execute-api.ap-southeast-2.amazonaws.com/dev`
+  - Wallet: `https://8k2qwmk56d.execute-api.ap-southeast-2.amazonaws.com/dev`
+  - Hedera: `https://vevhttzt1d.execute-api.ap-southeast-2.amazonaws.com/dev`
+  - Group: `https://f0v9l8afc0.execute-api.ap-southeast-2.amazonaws.com/dev`
 - **App URL**: `http://localhost:5173`
 - **Debug Mode**: `true`
+- **Email Verification**: Direct Cognito (Free Tier compliant)
 
 ### **Pre-Production Environment**
 - **User Pool**: `preprod-safemate-user-pool-v2`
 - **User Pool ID**: `ap-southeast-2_pMo5BXFiM`
 - **API URLs**: `*.execute-api.ap-southeast-2.amazonaws.com/preprod`
-- **App URL**: `https://d19a5c2wn4mtdt.cloudfront.net`
+- **App URL**: `https://d2xl0r3mv20sy5.cloudfront.net`
 - **Debug Mode**: `false`
+- **Email Verification**: Direct Cognito (Free Tier compliant)
 
-### **Production Environment**
-- **User Pool**: `prod-safemate-user-pool-v2`
-- **User Pool ID**: `ap-southeast-2_XXXXXXX`
-- **API URLs**: `*.execute-api.ap-southeast-2.amazonaws.com/prod`
-- **App URL**: `https://safemate.com`
-- **Debug Mode**: `false`
 
 ## 🛠️ **Switching Environments**
 
@@ -79,9 +74,6 @@ npm run dev
 
 # Use preprod environment for testing
 npm run dev:preprod
-
-# Use production environment for testing
-npm run dev:production
 ```
 
 ### **For Building**
@@ -91,9 +83,6 @@ npm run build:dev
 
 # Build for preprod
 npm run build:preprod
-
-# Build for production
-npm run build
 ```
 
 ## 🔒 **Security Considerations**
@@ -106,8 +95,7 @@ npm run build
 
 ### **CORS Configuration**
 - **Dev**: Allows `http://localhost:5173`
-- **Preprod**: Allows `https://d19a5c2wn4mtdt.cloudfront.net`
-- **Production**: Allows `https://safemate.com`
+- **Preprod**: Allows `https://d2xl0r3mv20sy5.cloudfront.net`
 
 ## 🚨 **Troubleshooting**
 

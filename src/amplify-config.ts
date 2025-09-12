@@ -14,11 +14,11 @@ export const amplifyConfig = {
           scopes: ['email', 'openid', 'profile', 'aws.cognito.signin.user.admin'],
           redirectSignIn: [
             'http://localhost:5173/callback',
-            `${import.meta.env.VITE_APP_URL || 'https://d19a5c2wn4mtdt.cloudfront.net'}/callback`
+            `${import.meta.env.VITE_APP_URL || 'https://d2xl0r3mv20sy5.cloudfront.net'}/callback`
           ],
           redirectSignOut: [
             'http://localhost:5173/',
-            import.meta.env.VITE_APP_URL || 'https://d19a5c2wn4mtdt.cloudfront.net/'
+            import.meta.env.VITE_APP_URL || 'https://d2xl0r3mv20sy5.cloudfront.net/'
           ],
           responseType: 'code' as const,
         },

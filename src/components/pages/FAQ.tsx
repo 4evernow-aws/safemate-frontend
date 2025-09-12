@@ -30,8 +30,12 @@ const FAQPage: React.FC = () => {
       answer: "SafeMate uses advanced encryption protocols and Hedera's distributed ledger technology to ensure your files are securely stored and protected. All data is encrypted both in transit and at rest."
     },
     {
-      question: "What is the $MATE token?",
-      answer: "The $MATE token is SafeMate's native utility token that powers the platform's ecosystem. It can be used for various platform features and governance decisions."
+      question: "What are MATE tokens?",
+      answer: "MATE tokens are reward points you earn for using SafeMate. Upload files, participate in the platform, and earn MATE rewards. The platform itself runs on Hedera Hashgraph (HBAR) for secure blockchain storage."
+    },
+    {
+      question: "How does SafeMate use blockchain technology?",
+      answer: "SafeMate uses Hedera Hashgraph blockchain technology to provide secure, immutable document storage. Your files are protected by distributed ledger technology, ensuring they remain safe and accessible."
     },
     {
       question: "How do I get started with SafeMate?",
@@ -39,7 +43,7 @@ const FAQPage: React.FC = () => {
     },
     {
       question: "Is SafeMate free to use?",
-      answer: "SafeMate offers both free and premium tiers. Basic storage is available for free, while premium features and additional storage require $MATE tokens or subscription plans."
+      answer: "SafeMate offers both free and premium tiers. Basic storage is available for free, while premium features and additional storage require subscription plans. MATE tokens are reward points you earn, not payment tokens."
     },
     {
       question: "What file types are supported?",
