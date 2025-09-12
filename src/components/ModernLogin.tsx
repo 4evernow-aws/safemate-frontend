@@ -910,40 +910,60 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     try {
       console.log('🔍 Processing sign-in verification for user:', verificationUsername);
       
-      // For existing users, we'll try to sign in directly first
-      // If that fails, we'll try the confirmation code approach
+      // Use the backend email verification service to check user status
       try {
-        console.log('🔄 Attempting direct sign-in for existing user...');
-        await signIn({
-          username: verificationUsername,
-          password: formData.password
-        });
+        console.log('📧 Checking user verification status with backend...');
         
-        console.log('✅ Direct sign-in successful for existing user!');
-        setSuccess('Sign-in successful!');
-      } catch (signInErr: any) {
-        console.log('⚠️ Direct sign-in failed, trying confirmation code approach:', signInErr);
-        
-        // If direct sign-in fails, try the confirmation code approach
-        // This handles cases where the user might need to confirm their account
-        try {
-          // Verify the code using Cognito directly (Free Tier compliant)
-          await confirmSignUp({
+        const response = await fetch(`${import.meta.env.VITE_ONBOARDING_API_URL}/onboarding/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'verify_code',
             username: verificationUsername,
             confirmationCode: formData.confirmationCode
-          });
+          })
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          console.log('✅ Backend verification result:', result);
           
-          console.log('✅ Email verification successful, proceeding with sign-in...');
-          setSuccess('Email verified successfully! Signing you in...');
-          
-          // Now proceed with the actual sign-in
+          if (result.success) {
+            console.log('✅ Email verification successful, proceeding with sign-in...');
+            setSuccess('Email verified successfully! Signing you in...');
+            
+            // Now proceed with the actual sign-in
+            await signIn({
+              username: verificationUsername,
+              password: formData.password
+            });
+            
+            console.log('✅ Sign-in successful after verification!');
+          } else {
+            throw new Error(result.message || 'Verification failed');
+          }
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Verification failed');
+        }
+      } catch (backendErr: any) {
+        console.log('⚠️ Backend verification failed, trying direct sign-in:', backendErr.message);
+        
+        // Fallback: Try direct sign-in for existing users
+        try {
+          console.log('🔄 Attempting direct sign-in for existing user...');
           await signIn({
             username: verificationUsername,
             password: formData.password
           });
-        } catch (confirmErr: any) {
-          // If both approaches fail, throw the original sign-in error
-          throw signInErr;
+          
+          console.log('✅ Direct sign-in successful for existing user!');
+          setSuccess('Sign-in successful!');
+        } catch (signInErr: any) {
+          // If both approaches fail, throw the backend error
+          throw backendErr;
         }
       }
       
