@@ -13,6 +13,7 @@
 // Status: Implemented direct Hedera testnet integration via backend API
 // Fixed: Replaced mirror node API calls with backend API for balance and transactions
 // Added: Backend validation for proper Hedera account ID format and 0.10 HBAR transfer
+// Fixed: TokenService function name error (getIdToken -> getValidIdToken)
 // Fixed: Wallet ID format handling and error management
 // 
 // Key Features:
@@ -394,7 +395,7 @@ export class SecureWalletService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await TokenService.getIdToken()}`
+          'Authorization': `Bearer ${await TokenService.getValidIdToken()}`
         },
         body: JSON.stringify({
           accountId: accountAlias
@@ -455,7 +456,7 @@ export class SecureWalletService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await TokenService.getIdToken()}`
+          'Authorization': `Bearer ${await TokenService.getValidIdToken()}`
         },
         body: JSON.stringify({
           accountId: accountAlias,
