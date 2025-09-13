@@ -12,6 +12,7 @@
 // Last Updated: 2025-09-14
 // Status: Implemented direct Hedera testnet integration via backend API
 // Fixed: Replaced mirror node API calls with backend API for balance and transactions
+// Added: Backend validation for proper Hedera account ID format and 0.10 HBAR transfer
 // Fixed: Wallet ID format handling and error management
 // 
 // Key Features:
@@ -291,6 +292,25 @@ export class SecureWalletService {
       });
 
       if (response.success) {
+        // Validate that we got a proper Hedera account ID
+        const accountId = response.hedera_account_id;
+        if (!accountId) {
+          throw new Error('Backend did not return a Hedera account ID');
+        }
+        
+        // Check if the account ID is in the correct format
+        if (accountId.startsWith('wallet-')) {
+          console.warn('⚠️ Backend returned wallet ID format instead of Hedera account ID:', accountId);
+          console.warn('⚠️ This indicates the backend needs to create real Hedera testnet accounts');
+          console.warn('⚠️ Expected format: 0.0.xxxxxx (e.g., 0.0.121212)');
+          console.warn('⚠️ Backend should use operator account to create accounts and transfer 0.10 HBAR');
+        } else if (!/^0\.0\.\d+$/.test(accountId)) {
+          console.warn('⚠️ Backend returned unexpected account ID format:', accountId);
+          console.warn('⚠️ Expected format: 0.0.xxxxxx (e.g., 0.0.121212)');
+        } else {
+          console.log('✅ Backend returned proper Hedera account ID:', accountId);
+        }
+
         // Update status: Updating profile
         onStatusUpdate?.({
           state: 'creating',
@@ -301,7 +321,7 @@ export class SecureWalletService {
         // Try to update user's Cognito attributes, but don't fail if it doesn't work
         try {
           await UserService.updateUserProfile({
-            hederaAccountId: response.hedera_account_id,
+            hederaAccountId: accountId,
             lastBlockchainActivity: new Date().toISOString(),
             walletSecurity: 'kms-enhanced'
           });
@@ -318,14 +338,23 @@ export class SecureWalletService {
           message: 'Secure wallet created successfully with KMS encryption!'
         });
 
+        // Validate the response data
+        const initialBalance = response.initial_balance_hbar || 0;
+        if (initialBalance < 0.1) {
+          console.warn('⚠️ Backend did not transfer 0.10 HBAR to new account. Balance:', initialBalance);
+          console.warn('⚠️ Backend should transfer 0.10 HBAR from operator account to new account');
+        } else {
+          console.log('✅ Backend transferred proper initial balance:', initialBalance, 'HBAR');
+        }
+
         return {
           success: true,
           wallet: {
-            accountId: response.hedera_account_id,
+            accountId: accountId,
             publicKey: response.public_key,
-            balance: { 
-              hbar: response.initial_balance_hbar || 0, 
-              usd: 0 
+            balance: {
+              hbar: initialBalance,
+              usd: 0
             },
             security: 'kms-enhanced',
             encryptionInfo: response.encryption_info,
