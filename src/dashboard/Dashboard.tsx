@@ -29,6 +29,26 @@ const DashboardHeader: React.FC = () => {
 
   const stats = getStats();
 
+  // Helper function to get display name
+  const getDisplayName = () => {
+    const firstName = user?.attributes?.given_name;
+    const lastName = user?.attributes?.family_name;
+    const username = user?.username;
+    
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`;
+    } else if (firstName) {
+      return firstName;
+    } else if (username && username.includes('@')) {
+      // Extract name from email (before @)
+      return username.split('@')[0];
+    } else if (username) {
+      return username;
+    } else {
+      return 'User';
+    }
+  };
+
   return (
     <Box 
       sx={{ 
@@ -48,7 +68,7 @@ const DashboardHeader: React.FC = () => {
           SafeMate Dashboard
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Welcome back, {user?.attributes?.name || user?.attributes?.given_name || user?.username || user?.email || 'User'}
+          Welcome back, {getDisplayName()}! 👋
         </Typography>
       </Box>
       
