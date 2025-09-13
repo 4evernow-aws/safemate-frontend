@@ -29,23 +29,29 @@ const DashboardHeader: React.FC = () => {
 
   const stats = getStats();
 
-  // Helper function to get display name with labels
+  // Helper function to get display name
   const getDisplayName = () => {
     const firstName = user?.attributes?.given_name;
     const lastName = user?.attributes?.family_name;
     const username = user?.username;
     
     if (firstName && lastName) {
-      return `First Name: ${firstName}, Last Name: ${lastName}`;
+      // Capitalize first letter of each name
+      const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+      const capitalizedLastName = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
+      return `${capitalizedFirstName} ${capitalizedLastName}`;
     } else if (firstName) {
-      return `First Name: ${firstName}`;
+      const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+      return capitalizedFirstName;
     } else if (lastName) {
-      return `Last Name: ${lastName}`;
+      const capitalizedLastName = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
+      return capitalizedLastName;
     } else if (username && username.includes('@')) {
-      // Extract name from email (before @)
-      return `Username: ${username.split('@')[0]}`;
+      // Extract name from email (before @) and capitalize
+      const emailName = username.split('@')[0];
+      return emailName.charAt(0).toUpperCase() + emailName.slice(1).toLowerCase();
     } else if (username) {
-      return `Username: ${username}`;
+      return username;
     } else {
       return 'User';
     }
