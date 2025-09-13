@@ -37,6 +37,15 @@ import {
   Storage as StorageIcon,
   TrendingUp as TrendingUpIcon,
   Settings as SettingsIcon,
+  Badge as BadgeIcon,
+  CreditCard as CreditCardIcon,
+  Home as HomeIcon,
+  Work as WorkIcon,
+  School as SchoolIcon,
+  Upload as UploadIcon,
+  CheckCircle as CheckCircleIcon,
+  Pending as PendingIcon,
+  Error as ErrorIcon,
 } from '@mui/icons-material';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { useUser } from '../../contexts/UserContext';
@@ -56,6 +65,44 @@ export default function ModernProfile() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // KYC State
+  const [kycData, setKycData] = useState({
+    personalInfo: {
+      firstName: user?.attributes?.given_name || '',
+      lastName: user?.attributes?.family_name || '',
+      dateOfBirth: '',
+      nationality: '',
+      phoneNumber: '',
+      address: {
+        street: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: ''
+      }
+    },
+    identityDocuments: {
+      governmentId: { status: 'pending', type: 'passport', number: '', expiryDate: '' },
+      driverLicense: { status: 'pending', number: '', expiryDate: '' },
+      nationalId: { status: 'pending', number: '', expiryDate: '' }
+    },
+    financialInfo: {
+      employmentStatus: '',
+      occupation: '',
+      employer: '',
+      annualIncome: '',
+      sourceOfFunds: ''
+    },
+    verificationStatus: {
+      emailVerified: true,
+      phoneVerified: false,
+      identityVerified: false,
+      addressVerified: false,
+      financialVerified: false,
+      overallStatus: 'incomplete'
+    }
+  });
 
   // Calculate user stats
   const totalFiles = folders.reduce((sum, folder) => sum + folder.files.length, 0);
@@ -398,6 +445,271 @@ export default function ModernProfile() {
                     <Chip label="Connected" color="warning" size="small" />
                   </ListItem>
                 </List>
+              </CardContent>
+            </Card>
+
+            {/* KYC Section */}
+            <Card sx={{ borderRadius: 3, mb: 3 }}>
+              <CardContent sx={{ p: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <BadgeIcon sx={{ fontSize: 28, mr: 2, color: 'primary.main' }} />
+                  <Typography variant="h5" fontWeight={700}>
+                    KYC Verification
+                  </Typography>
+                </Box>
+                
+                <Divider sx={{ mb: 3 }} />
+
+                {/* KYC Status Overview */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography variant="h6" fontWeight={600} gutterBottom>
+                    Verification Status
+                  </Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6} sm={3}>
+                      <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'success.light', borderRadius: 2 }}>
+                        <CheckCircleIcon color="success" sx={{ fontSize: 32, mb: 1 }} />
+                        <Typography variant="body2" fontWeight={600}>Email</Typography>
+                        <Typography variant="caption">Verified</Typography>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'warning.light', borderRadius: 2 }}>
+                        <PendingIcon color="warning" sx={{ fontSize: 32, mb: 1 }} />
+                        <Typography variant="body2" fontWeight={600}>Phone</Typography>
+                        <Typography variant="caption">Pending</Typography>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'warning.light', borderRadius: 2 }}>
+                        <PendingIcon color="warning" sx={{ fontSize: 32, mb: 1 }} />
+                        <Typography variant="body2" fontWeight={600}>Identity</Typography>
+                        <Typography variant="caption">Pending</Typography>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'warning.light', borderRadius: 2 }}>
+                        <PendingIcon color="warning" sx={{ fontSize: 32, mb: 1 }} />
+                        <Typography variant="body2" fontWeight={600}>Address</Typography>
+                        <Typography variant="caption">Pending</Typography>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Box>
+
+                {/* KYC Requirements */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography variant="h6" fontWeight={600} gutterBottom>
+                    Required Documents & Information
+                  </Typography>
+                  
+                  <Grid container spacing={3}>
+                    {/* Personal Information */}
+                    <Grid item xs={12} md={6}>
+                      <Paper sx={{ p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <PersonIcon color="primary" sx={{ mr: 1 }} />
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            Personal Information
+                          </Typography>
+                        </Box>
+                        <List dense>
+                          <ListItem disablePadding sx={{ mb: 1 }}>
+                            <ListItemIcon>
+                              <CheckCircleIcon color="success" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Full Name" 
+                              secondary="First and Last Name"
+                            />
+                          </ListItem>
+                          <ListItem disablePadding sx={{ mb: 1 }}>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Date of Birth" 
+                              secondary="Required for age verification"
+                            />
+                          </ListItem>
+                          <ListItem disablePadding sx={{ mb: 1 }}>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Nationality" 
+                              secondary="Country of citizenship"
+                            />
+                          </ListItem>
+                          <ListItem disablePadding>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Phone Number" 
+                              secondary="For SMS verification"
+                            />
+                          </ListItem>
+                        </List>
+                      </Paper>
+                    </Grid>
+
+                    {/* Identity Documents */}
+                    <Grid item xs={12} md={6}>
+                      <Paper sx={{ p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <CreditCardIcon color="primary" sx={{ mr: 1 }} />
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            Identity Documents
+                          </Typography>
+                        </Box>
+                        <List dense>
+                          <ListItem disablePadding sx={{ mb: 1 }}>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Government ID" 
+                              secondary="Passport, National ID, or Driver's License"
+                            />
+                          </ListItem>
+                          <ListItem disablePadding sx={{ mb: 1 }}>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Proof of Address" 
+                              secondary="Utility bill or bank statement (max 3 months old)"
+                            />
+                          </ListItem>
+                          <ListItem disablePadding>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Selfie Photo" 
+                              secondary="Clear photo holding your ID document"
+                            />
+                          </ListItem>
+                        </List>
+                      </Paper>
+                    </Grid>
+
+                    {/* Financial Information */}
+                    <Grid item xs={12} md={6}>
+                      <Paper sx={{ p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <WorkIcon color="primary" sx={{ mr: 1 }} />
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            Financial Information
+                          </Typography>
+                        </Box>
+                        <List dense>
+                          <ListItem disablePadding sx={{ mb: 1 }}>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Employment Status" 
+                              secondary="Employed, Self-employed, Student, etc."
+                            />
+                          </ListItem>
+                          <ListItem disablePadding sx={{ mb: 1 }}>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Occupation" 
+                              secondary="Your current job title"
+                            />
+                          </ListItem>
+                          <ListItem disablePadding>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Source of Funds" 
+                              secondary="How you fund your account"
+                            />
+                          </ListItem>
+                        </List>
+                      </Paper>
+                    </Grid>
+
+                    {/* Additional Requirements */}
+                    <Grid item xs={12} md={6}>
+                      <Paper sx={{ p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <SecurityIcon color="primary" sx={{ mr: 1 }} />
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            Additional Requirements
+                          </Typography>
+                        </Box>
+                        <List dense>
+                          <ListItem disablePadding sx={{ mb: 1 }}>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="PEP Status" 
+                              secondary="Politically Exposed Person declaration"
+                            />
+                          </ListItem>
+                          <ListItem disablePadding sx={{ mb: 1 }}>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Sanctions Check" 
+                              secondary="OFAC and international sanctions screening"
+                            />
+                          </ListItem>
+                          <ListItem disablePadding>
+                            <ListItemIcon>
+                              <PendingIcon color="warning" fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Risk Assessment" 
+                              secondary="Automated risk scoring and review"
+                            />
+                          </ListItem>
+                        </List>
+                      </Paper>
+                    </Grid>
+                  </Grid>
+                </Box>
+
+                {/* Action Buttons */}
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<UploadIcon />}
+                    size="large"
+                    sx={{ borderRadius: 2, px: 4 }}
+                  >
+                    Start KYC Process
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<SettingsIcon />}
+                    size="large"
+                    sx={{ borderRadius: 2, px: 4 }}
+                  >
+                    Update Information
+                  </Button>
+                </Box>
+
+                {/* KYC Notice */}
+                <Alert severity="info" sx={{ mt: 3, borderRadius: 2 }}>
+                  <Typography variant="body2" fontWeight={600} gutterBottom>
+                    KYC Compliance Notice
+                  </Typography>
+                  <Typography variant="body2">
+                    SafeMate is required to verify the identity of all users to comply with international 
+                    anti-money laundering (AML) and know-your-customer (KYC) regulations. This process 
+                    helps protect you and the platform from fraud and ensures regulatory compliance.
+                  </Typography>
+                </Alert>
               </CardContent>
             </Card>
           </Grid>
