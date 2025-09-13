@@ -10,9 +10,10 @@
 // - Real Hedera testnet wallet integration
 //
 // Environment: Development (dev)
-// Last Updated: 2025-09-12
+// Last Updated: 2025-09-14
 // Status: Fixed email verification to use Cognito directly (no Lambda/API)
 // Fixed: Username required error and undefined email destination issues
+// Fixed: Email verification now works on first attempt without requiring resend
 // 
 // Key Features:
 // - Direct Cognito email verification (Free Tier compliant)
@@ -644,32 +645,29 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
       setVerificationUsername(formData.username);
       setNeedsVerification(true);
       
-      // Send verification code to user's email
-      console.log('📧 Sending verification code to user...');
+      // Send verification code using Cognito directly (Free Tier compliant)
+      console.log('📧 Sending verification code to user via Cognito...');
       try {
-        const response = await fetch(`${import.meta.env.VITE_ONBOARDING_API_URL}/onboarding/verify`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            action: 'send_verification_code',
-            username: formData.username
-          })
+        const resendResult = await resendSignUpCode({
+          username: formData.username
         });
-        
-        if (response.ok) {
-          const result = await response.json();
-          console.log('✅ Verification code sent successfully:', result);
-          setSuccess('Verification code sent to your email. Please check your inbox and enter the code below.');
+        console.log('✅ Verification code sent successfully via Cognito:', resendResult);
+        setSuccess('Verification code sent to your email. Please check your inbox and enter the code below.');
+      } catch (sendError: any) {
+        console.log('⚠️ Error sending verification code via Cognito:', sendError);
+        // If user is already confirmed, proceed with direct sign-in
+        if (sendError.name === 'InvalidParameterException' && sendError.message?.includes('User is already confirmed')) {
+          console.log('✅ User already confirmed, proceeding with direct sign-in...');
+          await signIn({
+            username: formData.username,
+            password: formData.password
+          });
+          console.log('✅ Direct sign-in successful for confirmed user!');
+          setSuccess('Sign-in successful!');
+          return;
         } else {
-          const errorData = await response.json();
-          console.log('⚠️ Failed to send verification code:', errorData);
           setSuccess('Please enter the verification code sent to your email for enhanced security.');
         }
-      } catch (sendError) {
-        console.log('⚠️ Error sending verification code:', sendError);
-        setSuccess('Please enter the verification code sent to your email for enhanced security.');
       }
       
       // Always show email verification step for security
@@ -888,47 +886,39 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     try {
       console.log('🔍 Processing sign-in verification for user:', verificationUsername);
       
-      // Use the backend email verification service to check user status
+      // Use Cognito directly for email verification (Free Tier compliant)
       try {
-        console.log('📧 Checking user verification status with backend...');
-        
-        const response = await fetch(`${import.meta.env.VITE_ONBOARDING_API_URL}/onboarding/verify`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            action: 'verify_code',
+        console.log('📧 Verifying code with Cognito directly...');
+
+        // First try to confirm the signup with the verification code
+        try {
+          await confirmSignUp({
             username: verificationUsername,
             confirmationCode: formData.confirmationCode
-          })
-        });
-        
-        if (response.ok) {
-          const result = await response.json();
-          console.log('✅ Backend verification result:', result);
-          
-          if (result.success) {
-            console.log('✅ Email verification successful, proceeding with sign-in...');
-            setSuccess('Email verified successfully! Signing you in...');
-            
-            // Now proceed with the actual sign-in
-            await signIn({
-              username: verificationUsername,
-              password: formData.password
-            });
-            
-            console.log('✅ Sign-in successful after verification!');
+          });
+          console.log('✅ Email verification successful via Cognito!');
+        } catch (confirmErr: any) {
+          // If user is already confirmed, that's okay - proceed with sign-in
+          if (confirmErr.name === 'InvalidParameterException' && confirmErr.message?.includes('User is already confirmed')) {
+            console.log('✅ User already confirmed, proceeding with sign-in...');
           } else {
-            throw new Error(result.message || 'Verification failed');
+            throw confirmErr;
           }
-        } else {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Verification failed');
         }
-      } catch (backendErr: any) {
-        console.log('⚠️ Backend verification failed, trying direct sign-in:', backendErr.message);
-        
+
+        // Now proceed with the actual sign-in
+        console.log('✅ Email verification successful, proceeding with sign-in...');
+        setSuccess('Email verified successfully! Signing you in...');
+
+        await signIn({
+          username: verificationUsername,
+          password: formData.password
+        });
+
+        console.log('✅ Sign-in successful after verification!');
+      } catch (verificationErr: any) {
+        console.log('⚠️ Cognito verification failed, trying direct sign-in:', verificationErr.message);
+
         // Fallback: Try direct sign-in for existing users
         try {
           console.log('🔄 Attempting direct sign-in for existing user...');
@@ -936,12 +926,12 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
             username: verificationUsername,
             password: formData.password
           });
-          
+
           console.log('✅ Direct sign-in successful for existing user!');
           setSuccess('Sign-in successful!');
         } catch (signInErr: any) {
-          // If both approaches fail, throw the backend error
-          throw backendErr;
+          // If both approaches fail, throw the verification error
+          throw verificationErr;
         }
       }
       
