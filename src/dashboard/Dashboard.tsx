@@ -29,21 +29,23 @@ const DashboardHeader: React.FC = () => {
 
   const stats = getStats();
 
-  // Helper function to get display name
+  // Helper function to get display name with labels
   const getDisplayName = () => {
     const firstName = user?.attributes?.given_name;
     const lastName = user?.attributes?.family_name;
     const username = user?.username;
     
     if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
+      return `First Name: ${firstName}, Last Name: ${lastName}`;
     } else if (firstName) {
-      return firstName;
+      return `First Name: ${firstName}`;
+    } else if (lastName) {
+      return `Last Name: ${lastName}`;
     } else if (username && username.includes('@')) {
       // Extract name from email (before @)
-      return username.split('@')[0];
+      return `Username: ${username.split('@')[0]}`;
     } else if (username) {
-      return username;
+      return `Username: ${username}`;
     } else {
       return 'User';
     }
