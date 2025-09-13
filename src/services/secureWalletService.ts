@@ -138,13 +138,15 @@ export class SecureWalletService {
       if (response.success && response.hasWallet) {
         console.log('✅ SecureWalletService: Creating wallet object from response');
         
-        // Fix wallet ID format - convert from wallet-xxx-xxx-xxx to proper Hedera account ID
+        // Use the actual account ID from backend response
         let accountAlias = response.accountId;
         if (accountAlias && accountAlias.startsWith('wallet-')) {
-          // Extract the timestamp part and convert to a proper Hedera account ID
-          // For now, use a placeholder that will work with mirror node
-          accountAlias = '0.0.123456'; // This should be replaced with actual Hedera account ID from backend
-          console.log('⚠️ SecureWalletService: Converting wallet ID format from', response.accountId, 'to', accountAlias);
+          // The backend should provide a proper Hedera account ID
+          // If it's still in wallet-xxx format, we need to get the real account ID
+          console.log('⚠️ SecureWalletService: Backend returned wallet ID format:', response.accountId);
+          console.log('⚠️ SecureWalletService: This indicates the backend needs to create a real Hedera account');
+          // For now, keep the original format and let the backend handle the conversion
+          accountAlias = response.accountId;
         }
         
         return {

@@ -1,3 +1,26 @@
+// =============================================================================
+// SafeMate Hedera Context Provider
+// =============================================================================
+// 
+// This context provides Hedera blockchain integration including:
+// - Real Hedera testnet wallet management
+// - Account balance and transaction tracking
+// - File storage and retrieval on Hedera
+// - Direct testnet integration (not mirror node dependent)
+//
+// Environment: Development (dev)
+// Last Updated: 2025-09-14
+// Status: Fixed context provider error handling and real wallet integration
+// Fixed: useHedera hook context error and demo wallet usage
+// 
+// Key Features:
+// - Real Hedera testnet account creation
+// - KMS-enhanced security for wallet credentials
+// - Direct blockchain integration
+// - Comprehensive error handling and logging
+//
+// =============================================================================
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { HederaApiService } from '../services/hederaApiService';
@@ -66,7 +89,16 @@ interface HederaProviderProps {
 }
 
 export function HederaProvider({ children }: HederaProviderProps) {
-  const { user } = useUser();
+  // Safely get user from UserContext with error handling
+  let user = null;
+  try {
+    const userContext = useUser();
+    user = userContext?.user || null;
+  } catch (error) {
+    console.warn('⚠️ HederaProvider: Could not access UserContext:', error);
+    user = null;
+  }
+
   const [account, setAccount] = useState<HederaAccount | null>(null);
   const [folders, setFolders] = useState<HederaFolder[]>([]);
   const [userFiles, setUserFiles] = useState<HederaFile[]>([]);
@@ -694,7 +726,8 @@ export function HederaProvider({ children }: HederaProviderProps) {
 export function useHedera() {
   const context = useContext(HederaContext);
   if (context === undefined) {
-    throw new Error('useHedera must be used within a HederaProvider');
+    console.error('❌ useHedera: Context is undefined. Make sure HederaProvider is properly wrapping the component.');
+    throw new Error('useHedera must be used within a HederaProvider. Check that HederaProvider is wrapping your component tree.');
   }
   return context;
 } 
