@@ -42,6 +42,7 @@ const DashboardStatsWidget: React.FC<WidgetProps> = ({ widgetId, accountType, on
     const storageUsed = 0.0; // TODO: Calculate actual storage
     const hbarBalance = account?.balance ? parseFloat(account.balance) : 0;
     const filesStored = folders.length; // Count of files stored
+    const mateTokens = 0; // TODO: Get actual MATE token balance from API
 
     const newStats: StatCard[] = [
       {
