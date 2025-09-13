@@ -637,70 +637,48 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     try {
       console.log('🔍 Starting sign in process...');
       
-      // Let Cognito handle email verification naturally during sign-in
-      console.log('🔍 Attempting sign-in with Cognito...');
+      // For security, ALL users (new and existing) must complete email verification
+      console.log('🔒 Security requirement: Email verification required for all users');
       
-      // Attempt to sign in directly
-      const signInResult = await signIn({
-        username: formData.username,
-        password: formData.password
-      });
+      // Store the username and password for later use after verification
+      setVerificationUsername(formData.username);
+      setNeedsVerification(true);
       
-      console.log('✅ Sign in successful:', signInResult);
-      setSuccess('Successfully signed in!');
-      
-      // Wait for authentication to be properly established
-      console.log('⏳ Waiting for authentication to be established...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if user has a wallet, if not show onboarding
+      // Send verification code to user's email
+      console.log('📧 Sending verification code to user...');
       try {
-        const { SecureWalletService } = await import('../services/secureWalletService');
+        const response = await fetch(`${import.meta.env.VITE_ONBOARDING_API_URL}/onboarding/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'send_verification_code',
+            username: formData.username
+          })
+        });
         
-        console.log('🔍 Checking if user has secure wallet...');
-        const hasWallet = await SecureWalletService.hasSecureWallet();
-        console.log('🔍 hasSecureWallet result:', hasWallet);
-        
-        if (!hasWallet) {
-          console.log('🔄 No wallet found, showing onboarding...');
-          setOnboardingAccountType('personal'); // Default for existing users
-          
-          if (onOnboardingNeeded) {
-            onOnboardingNeeded();
-          }
-          
-          setShowOnboarding(true);
+        if (response.ok) {
+          const result = await response.json();
+          console.log('✅ Verification code sent successfully:', result);
+          setSuccess('Verification code sent to your email. Please check your inbox and enter the code below.');
         } else {
-          console.log('✅ User has wallet, proceeding to dashboard...');
-          if (onAuthSuccess) {
-            onAuthSuccess();
-          }
+          const errorData = await response.json();
+          console.log('⚠️ Failed to send verification code:', errorData);
+          setSuccess('Please enter the verification code sent to your email for enhanced security.');
         }
-      } catch (walletError) {
-        console.error('❌ Error checking wallet:', walletError);
-        // If wallet check fails, still allow sign-in
-        if (onAuthSuccess) {
-          onAuthSuccess();
-        }
+      } catch (sendError) {
+        console.log('⚠️ Error sending verification code:', sendError);
+        setSuccess('Please enter the verification code sent to your email for enhanced security.');
       }
+      
+      // Always show email verification step for security
+      console.log('📧 Showing email verification form for security...');
+      setMode('signin-verify');
       
     } catch (err: any) {
       console.error('❌ Sign in error:', err);
-      
-      // Check if user needs email verification (fallback for UserNotConfirmedException)
-      if (err.code === 'UserNotConfirmedException' || 
-          err.name === 'UserNotConfirmedException' ||
-          err.message?.includes('not confirmed') ||
-          err.message?.includes('verification')) {
-        
-        console.log('📧 User needs email verification (exception caught), showing verification form...');
-        setNeedsVerification(true);
-        setVerificationUsername(formData.username);
-        setMode('signin-verify');
-        setError('Please verify your email address before signing in. Check your inbox for a verification code.');
-      } else {
-        setError(err.message || 'Failed to sign in');
-      }
+      setError(err.message || 'Failed to initiate sign in process');
     } finally {
       setLoading(false);
     }
