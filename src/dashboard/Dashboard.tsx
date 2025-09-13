@@ -43,16 +43,29 @@ const DashboardHeader: React.FC = () => {
       allAttributes: user?.attributes
     });
     
-    if (firstName && lastName) {
+    // Check if firstName contains a dot (like "simon.woods") and split it
+    let processedFirstName = firstName;
+    let processedLastName = lastName;
+    
+    if (firstName && firstName.includes('.') && !lastName) {
+      // If firstName is "simon.woods" and lastName is empty, split it
+      const nameParts = firstName.split('.');
+      if (nameParts.length === 2) {
+        processedFirstName = nameParts[0];
+        processedLastName = nameParts[1];
+      }
+    }
+    
+    if (processedFirstName && processedLastName) {
       // Capitalize first letter of each name
-      const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
-      const capitalizedLastName = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
+      const capitalizedFirstName = processedFirstName.charAt(0).toUpperCase() + processedFirstName.slice(1).toLowerCase();
+      const capitalizedLastName = processedLastName.charAt(0).toUpperCase() + processedLastName.slice(1).toLowerCase();
       return `${capitalizedFirstName} ${capitalizedLastName}`;
-    } else if (firstName) {
-      const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+    } else if (processedFirstName) {
+      const capitalizedFirstName = processedFirstName.charAt(0).toUpperCase() + processedFirstName.slice(1).toLowerCase();
       return capitalizedFirstName;
-    } else if (lastName) {
-      const capitalizedLastName = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
+    } else if (processedLastName) {
+      const capitalizedLastName = processedLastName.charAt(0).toUpperCase() + processedLastName.slice(1).toLowerCase();
       return capitalizedLastName;
     } else if (username && username.includes('@')) {
       // Extract name from email (before @) and capitalize
