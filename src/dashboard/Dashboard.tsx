@@ -35,6 +35,14 @@ const DashboardHeader: React.FC = () => {
     const lastName = user?.attributes?.family_name;
     const username = user?.username;
     
+    // Debug logging to see what attributes are available
+    console.log('🔍 User attributes debug:', {
+      firstName,
+      lastName,
+      username,
+      allAttributes: user?.attributes
+    });
+    
     if (firstName && lastName) {
       // Capitalize first letter of each name
       const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
