@@ -1,4 +1,5 @@
 // Real Hedera API Service - Connects to backend Lambda functions
+// Updated to use backend API instead of direct mirror node calls
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { config, getApiUrl, getHederaApiUrl, getHederaMirrorUrl } from '../config/environment';
 
@@ -181,23 +182,24 @@ export class HederaApiService {
   }
   
   /**
-   * Get account balance from Hedera Mirror Node
+   * Get account balance via backend API
    */
   static async getAccountBalance(accountId: string): Promise<ApiResponse<{ hbar: number; tokens: Record<string, number> }>> {
     try {
-      // Strip alias- prefix if present
-      const formattedAccountId = accountId.startsWith('alias-') ? accountId.replace('alias-', '') : accountId;
-      const response = await fetch(getHederaMirrorUrl(`/accounts/${formattedAccountId}`));
+      // Use backend API instead of direct mirror node calls
+      const response = await this.makeHederaApiRequest('/balance', 'POST', {
+        accountId: accountId
+      });
       
       if (!response.ok) {
-        throw new Error(`Mirror node request failed: ${response.status}`);
+        throw new Error(`Backend API request failed: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
-      // Convert tinybars to HBAR
-      const hbarBalance = data.balance ? parseFloat(data.balance.balance) / 100000000 : 0;
-      
+
+      // Backend API returns balance in HBAR format
+      const hbarBalance = data.hbar || 0;
+
       return {
         success: true,
         data: {
@@ -224,7 +226,7 @@ export class HederaApiService {
       const response = await fetch(getHederaMirrorUrl(`/accounts/${formattedAccountId}/tokens?limit=100&order=desc`));
       
       if (!response.ok) {
-        throw new Error(`Mirror node request failed: ${response.status}`);
+        throw new Error(`Backend API request failed: ${response.status}`);
       }
       
       const data = await response.json();
@@ -423,13 +425,14 @@ export class HederaApiService {
   // =======================
   
   /**
-   * Get account information from Mirror Node
+   * Get account information via backend API
    */
   static async getAccountInfo(accountId: string): Promise<ApiResponse<any>> {
     try {
-      // Strip alias- prefix if present
-      const formattedAccountId = accountId.startsWith('alias-') ? accountId.replace('alias-', '') : accountId;
-      const response = await fetch(getHederaMirrorUrl(`/accounts/${formattedAccountId}`));
+      // Use backend API instead of direct mirror node calls
+      const response = await this.makeHederaApiRequest('/account-info', 'POST', {
+        accountId: accountId
+      });
       
       if (!response.ok) {
         if (response.status === 404) {
@@ -438,7 +441,7 @@ export class HederaApiService {
             error: 'Account not found'
           };
         }
-        throw new Error(`Mirror node request failed: ${response.status}`);
+        throw new Error(`Backend API request failed: ${response.status}`);
       }
       
       const data = await response.json();
@@ -456,13 +459,15 @@ export class HederaApiService {
   }
   
   /**
-   * Get account transactions
+   * Get account transactions via backend API
    */
   static async getAccountTransactions(accountId: string, limit: number = 10): Promise<ApiResponse<any[]>> {
     try {
-      // Strip alias- prefix if present
-      const formattedAccountId = accountId.startsWith('alias-') ? accountId.replace('alias-', '') : accountId;
-      const response = await fetch(getHederaMirrorUrl(`/accounts/${formattedAccountId}/transactions?limit=${limit}&order=desc`));
+      // Use backend API instead of direct mirror node calls
+      const response = await this.makeHederaApiRequest('/transactions', 'POST', {
+        accountId: accountId,
+        limit: limit
+      });
       
       if (!response.ok) {
         // Handle 404 as "no transactions found" (normal for new accounts)
@@ -473,7 +478,7 @@ export class HederaApiService {
             data: []
           };
         }
-        throw new Error(`Mirror node request failed: ${response.status}`);
+        throw new Error(`Backend API request failed: ${response.status}`);
       }
       
       const data = await response.json();
