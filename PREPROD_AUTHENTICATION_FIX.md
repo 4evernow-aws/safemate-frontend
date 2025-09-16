@@ -7,6 +7,13 @@ The preprod environment was experiencing authentication issues that prevented:
 2. **User sign-in** - "Incorrect username or password" errors
 3. **Hedera wallet creation** - "User not authenticated or token refresh failed" errors
 
+## Security Enhancement
+
+**NEW REQUIREMENT**: All users (both new and existing) must now go through email verification as an extra security layer. This means:
+- Existing users will receive a verification code when signing in
+- New users continue to receive verification codes during registration
+- This adds an additional layer of security to prevent unauthorized access
+
 ## Root Cause Analysis
 
 ### 1. Cognito User Pool Configuration Issue
@@ -74,7 +81,24 @@ const user: User = {
 - Improved error handling for Cognito-specific exceptions
 - Added proper error messages for different failure scenarios
 
-### 4. Environment Configuration
+### 4. Enhanced Authentication Flow
+**File**: `src/components/ModernLogin.tsx`
+
+**Changes**:
+- Modified `handleSignIn` to require email verification for ALL users
+- Added `storedPassword` state to maintain password during verification
+- Updated `handleSignInVerification` to use stored password after verification
+- Added security layer that sends verification codes for existing users
+
+**New Flow**:
+1. User enters credentials and clicks sign-in
+2. System validates credentials with Cognito
+3. If valid, system sends verification code to user's email
+4. User enters verification code
+5. System verifies code and completes sign-in
+6. User proceeds to dashboard or wallet creation
+
+### 5. Environment Configuration
 **File**: `.env`
 
 **Changes**:
@@ -93,6 +117,8 @@ const user: User = {
 - ✅ Email verification: Cognito native service working
 - ✅ User authentication: Real user attributes loaded
 - ✅ Token service: Proper authentication tokens available
+- ✅ Enhanced security: All users now require email verification
+- ✅ Existing user flow: Verification codes sent for all sign-ins
 - ✅ Wallet creation: Should work with valid authentication
 
 ## Deployment Status
@@ -101,32 +127,35 @@ const user: User = {
 - [x] Cognito user pool configuration updated
 - [x] UserContext authentication fixed
 - [x] Email verification service updated
+- [x] Enhanced authentication flow implemented
 - [x] Environment configuration verified
+- [x] Frontend deployment to preprod S3 bucket
 - [x] Code changes committed to preprod branch
 
 ### Pending
-- [ ] Frontend deployment to preprod S3 bucket
-- [ ] End-to-end testing of authentication flow
-- [ ] Wallet creation testing
-- [ ] User acceptance testing
+- [ ] End-to-end testing of enhanced authentication flow
+- [ ] Wallet creation testing with new security layer
+- [ ] User acceptance testing for existing users
+- [ ] Performance testing of verification flow
 
 ## Next Steps
 
-1. **Deploy Updated Frontend**
-   ```bash
-   npm run build
-   aws s3 sync dist/ s3://preprod-safemate-static-hosting --delete
-   ```
-
-2. **Test Authentication Flow**
-   - Test user registration with email verification
-   - Test user sign-in with correct credentials
+1. **Test Enhanced Authentication Flow**
+   - Test existing user sign-in with email verification requirement
+   - Test new user registration with email verification
+   - Verify that all users receive verification codes
    - Test wallet creation after successful authentication
 
-3. **Monitor for Issues**
+2. **Monitor for Issues**
    - Check browser console for authentication errors
    - Verify API calls are working with proper tokens
    - Ensure wallet creation completes successfully
+   - Monitor user experience with new verification step
+
+3. **User Communication**
+   - Inform users about the new security enhancement
+   - Provide clear instructions for the verification process
+   - Update help documentation with new flow
 
 ## Environment Configuration
 
@@ -164,8 +193,9 @@ VITE_ONBOARDING_API_URL=https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.
 
 1. `src/contexts/UserContext.tsx` - Fixed authentication to use real user attributes
 2. `src/services/emailVerificationService.ts` - Updated to use Cognito native service
-3. `.env` - Updated environment configuration for preprod
-4. `PREPROD_AUTHENTICATION_FIX.md` - This documentation file
+3. `src/components/ModernLogin.tsx` - Enhanced authentication flow with email verification for all users
+4. `.env` - Updated environment configuration for preprod
+5. `PREPROD_AUTHENTICATION_FIX.md` - This documentation file
 
 ## Summary
 
@@ -174,10 +204,12 @@ The authentication issues in the preprod environment have been systematically id
 1. **Cognito configuration** - Email auto-verification was not enabled
 2. **Mock authentication** - UserContext was using fake data instead of real user attributes
 3. **Token generation** - Users weren't getting proper authentication tokens
+4. **Security enhancement** - Added email verification requirement for all users
 
-All fixes have been applied and the system should now work correctly for:
+All fixes have been applied and the system now includes enhanced security features:
 - User registration and email verification
-- User sign-in with proper authentication
+- User sign-in with email verification requirement (NEW)
+- Enhanced security layer for all users
 - Hedera wallet creation with valid tokens
 
-The next step is to deploy the updated frontend and test the complete authentication flow.
+The system has been deployed and is ready for testing with the new enhanced authentication flow.
