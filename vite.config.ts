@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
   //
   // Use npm scripts: npm run dev, npm run dev:preprod, npm run dev:production
   // DO NOT copy .env files to .env.local - let Vite handle it!
-  const env = loadEnv(mode, process.cwd(), '')
+  loadEnv(mode, process.cwd(), '')
   
   return {
     plugins: [react()],

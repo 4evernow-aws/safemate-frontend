@@ -20,6 +20,7 @@ interface User {
     'custom:account_type'?: string;
     email?: string;
     given_name?: string;
+    family_name?: string;
     account_type?: string;
   };
 }
