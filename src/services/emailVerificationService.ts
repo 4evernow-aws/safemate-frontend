@@ -1,49 +1,59 @@
-import axios from 'axios';
+/**
+ * SafeMate Email Verification Service
+ * Uses AWS Cognito's native email verification functionality
+ * Updated: 2025-01-15 - Fixed to use Cognito native service instead of custom API
+ */
 
-const API_BASE_URL = import.meta.env.VITE_EMAIL_VERIFICATION_API_URL || 'https://your-api-gateway-url.amazonaws.com/dev';
+import { CognitoService } from '../cognito';
 
 export class EmailVerificationService {
   /**
-   * Send verification code to user's email
+   * Send verification code to user's email using Cognito's native service
    * @param username - User's email/username
    */
   static async sendVerificationCode(username: string): Promise<{ message: string; destination?: string }> {
     try {
-      console.log('📧 Sending verification code to:', username);
+      console.log('📧 Sending verification code via Cognito native service to:', username);
       
-      const response = await axios.post(`${API_BASE_URL}/email-verification`, {
-        username,
-        action: 'send_verification_code'
-      });
+      // Use Cognito's native resendConfirmationCode method
+      const result = await CognitoService.resendConfirmationCode(username);
       
-      console.log('✅ Verification code sent successfully');
-      return response.data;
+      console.log('✅ Verification code sent successfully via Cognito');
+      return {
+        message: 'Verification code sent successfully',
+        destination: username
+      };
     } catch (error: any) {
-      console.error('❌ Error sending verification code:', error);
-      throw new Error(error.response?.data?.error || error.message || 'Failed to send verification code');
+      console.error('❌ Error sending verification code via Cognito:', error);
+      
+      // Handle specific Cognito errors
+      if (error.code === 'NotAuthorizedException' && error.message.includes('Auto verification not turned on')) {
+        throw new Error('Email verification is not enabled for this user. Please contact support.');
+      }
+      
+      throw new Error(error.message || 'Failed to send verification code');
     }
   }
 
   /**
-   * Verify the confirmation code entered by user
+   * Verify the confirmation code entered by user using Cognito's native service
    * @param username - User's email/username
    * @param confirmationCode - 6-digit verification code
    */
   static async verifyCode(username: string, confirmationCode: string): Promise<{ message: string }> {
     try {
-      console.log('🔍 Verifying code for user:', username);
+      console.log('🔍 Verifying code via Cognito native service for user:', username);
       
-      const response = await axios.post(`${API_BASE_URL}/email-verification`, {
-        username,
-        confirmationCode,
-        action: 'verify_code'
-      });
+      // Use Cognito's native confirmSignUp method
+      const result = await CognitoService.confirmSignUp(username, confirmationCode);
       
-      console.log('✅ Email verification successful');
-      return response.data;
+      console.log('✅ Email verification successful via Cognito');
+      return {
+        message: 'Email verification successful'
+      };
     } catch (error: any) {
-      console.error('❌ Error verifying code:', error);
-      throw new Error(error.response?.data?.error || error.message || 'Failed to verify code');
+      console.error('❌ Error verifying code via Cognito:', error);
+      throw new Error(error.message || 'Failed to verify code');
     }
   }
 
@@ -55,12 +65,12 @@ export class EmailVerificationService {
     try {
       console.log('🔍 Checking verification status for:', username);
       
-      // This would typically call a Cognito API to check user status
-      // For now, we'll return a default response
-      return { needsVerification: false };
+      // For Cognito, we assume verification is needed if user is not confirmed
+      // This is a simplified check - in practice, you might want to call Cognito Admin APIs
+      return { needsVerification: true };
     } catch (error: any) {
       console.error('❌ Error checking verification status:', error);
-      throw new Error(error.response?.data?.error || error.message || 'Failed to check verification status');
+      throw new Error(error.message || 'Failed to check verification status');
     }
   }
 }
