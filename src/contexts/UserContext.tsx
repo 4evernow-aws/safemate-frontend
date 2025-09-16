@@ -82,7 +82,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         username: attributes.email || currentUser.username || 'unknown-username',
         email: attributes.email || currentUser.signInDetails?.loginId || 'unknown@example.com',
         name: attributes.given_name || attributes.email?.split('@')[0] || 'User',
-        account_type: attributes['custom:account_type'] || 'personal',
+        account_type: (attributes['custom:account_type'] as 'personal' | 'family' | 'business' | 'community' | 'sporting' | 'cultural') || 'personal',
         wallet_created: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

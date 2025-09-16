@@ -1,3 +1,9 @@
+/**
+ * SafeMate Modern Login Component
+ * Handles user authentication with enhanced security features
+ * Updated: 2025-01-15 - Added email verification requirement for all users (new and existing) as extra security layer
+ */
+
 import React, { useState, useEffect } from 'react';
 import { signIn, signUp, confirmSignUp, resendSignUpCode, resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 import {
@@ -539,6 +545,7 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
   const [onboardingAccountType, setOnboardingAccountType] = useState('personal');
   const [needsVerification, setNeedsVerification] = useState(false);
   const [verificationUsername, setVerificationUsername] = useState('');
+  const [storedPassword, setStoredPassword] = useState('');
 
   // Handle forceShowOnboarding prop changes
   useEffect(() => {
@@ -610,69 +617,58 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     setError('');
 
     try {
-      console.log('🔍 Starting sign in process...');
+      console.log('🔍 Starting sign in process with email verification...');
       
-      // Attempt to sign in directly
-      const signInResult = await signIn({
-        username: formData.username,
-        password: formData.password
-      });
-      
-      console.log('✅ Sign in successful:', signInResult);
-      setSuccess('Successfully signed in!');
-      
-      // Wait for authentication to be properly established
-      console.log('⏳ Waiting for authentication to be established...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if user has a wallet, if not show onboarding
+      // For security, ALL users (new and existing) must go through email verification
+      // First, validate credentials by attempting sign-in
       try {
-        const { SecureWalletService } = await import('../services/secureWalletService');
+        const signInResult = await signIn({
+          username: formData.username,
+          password: formData.password
+        });
         
-        console.log('🔍 Checking if user has secure wallet...');
-        const hasWallet = await SecureWalletService.hasSecureWallet();
-        console.log('🔍 hasSecureWallet result:', hasWallet);
+        console.log('✅ Credentials validated, proceeding to email verification...');
         
-        if (!hasWallet) {
-          console.log('🔄 No wallet found, showing onboarding...');
-          setOnboardingAccountType('personal'); // Default for existing users
+        // Store the password for later use after verification
+        setStoredPassword(formData.password);
+        setVerificationUsername(formData.username);
+        
+        // Send verification code for extra security layer
+        const { EmailVerificationService } = await import('../services/emailVerificationService');
+        await EmailVerificationService.sendVerificationCode(formData.username);
+        
+        console.log('📧 Email verification code sent for security verification');
+        setSuccess('Verification code sent to your email. Please enter the code to complete sign-in.');
+        setMode('signin-verify');
+        
+      } catch (signInErr: any) {
+        console.error('❌ Sign in error:', signInErr);
+        
+        // Check if user needs email verification (unconfirmed account)
+        if (signInErr.code === 'UserNotConfirmedException' || 
+            signInErr.name === 'UserNotConfirmedException' ||
+            signInErr.message?.includes('not confirmed') ||
+            signInErr.message?.includes('verification')) {
           
-          if (onOnboardingNeeded) {
-            onOnboardingNeeded();
-          }
+          console.log('📧 User account not confirmed, sending verification code...');
+          setVerificationUsername(formData.username);
+          setStoredPassword(formData.password);
           
-          setShowOnboarding(true);
+          // Send verification code for unconfirmed account
+          const { EmailVerificationService } = await import('../services/emailVerificationService');
+          await EmailVerificationService.sendVerificationCode(formData.username);
+          
+          setSuccess('Verification code sent to your email. Please enter the code to confirm your account.');
+          setMode('signin-verify');
         } else {
-          console.log('✅ User has wallet, proceeding to dashboard...');
-          if (onAuthSuccess) {
-            onAuthSuccess();
-          }
-        }
-      } catch (walletError) {
-        console.error('❌ Error checking wallet:', walletError);
-        // If wallet check fails, still allow sign-in
-        if (onAuthSuccess) {
-          onAuthSuccess();
+          // Invalid credentials
+          setError(signInErr.message || 'Invalid username or password');
         }
       }
       
     } catch (err: any) {
-      console.error('❌ Sign in error:', err);
-      
-      // Check if user needs email verification
-      if (err.code === 'UserNotConfirmedException' || 
-          err.name === 'UserNotConfirmedException' ||
-          err.message?.includes('not confirmed') ||
-          err.message?.includes('verification')) {
-        
-        console.log('📧 User needs email verification, showing verification form...');
-        setNeedsVerification(true);
-        setVerificationUsername(formData.username);
-        setMode('signin-verify');
-        setError('Please verify your email address before signing in. Check your inbox for a verification code.');
-      } else {
-        setError(err.message || 'Failed to sign in');
-      }
+      console.error('❌ Sign in process error:', err);
+      setError(err.message || 'Failed to process sign-in request');
     } finally {
       setLoading(false);
     }
@@ -874,42 +870,18 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
     try {
       console.log('🔍 Processing sign-in verification for user:', verificationUsername);
       
-      // For existing users, we'll try to sign in directly first
-      // If that fails, we'll try the confirmation code approach
-      try {
-        console.log('🔄 Attempting direct sign-in for existing user...');
-        await signIn({
-          username: verificationUsername,
-          password: formData.password
-        });
-        
-        console.log('✅ Direct sign-in successful for existing user!');
-        setSuccess('Sign-in successful!');
-      } catch (signInErr: any) {
-        console.log('⚠️ Direct sign-in failed, trying confirmation code approach:', signInErr);
-        
-        // If direct sign-in fails, try the confirmation code approach
-        // This handles cases where the user might need to confirm their account
-        try {
-          // Import the email verification service
-          const { EmailVerificationService } = await import('../services/emailVerificationService');
-          
-          // Verify the code using our service
-          await EmailVerificationService.verifyCode(verificationUsername, formData.confirmationCode);
-          
-          console.log('✅ Email verification successful, proceeding with sign-in...');
-          setSuccess('Email verified successfully! Signing you in...');
-          
-          // Now proceed with the actual sign-in
-          await signIn({
-            username: verificationUsername,
-            password: formData.password
-          });
-        } catch (confirmErr: any) {
-          // If both approaches fail, throw the original sign-in error
-          throw signInErr;
-        }
-      }
+      // Verify the email verification code first
+      const { EmailVerificationService } = await import('../services/emailVerificationService');
+      await EmailVerificationService.verifyCode(verificationUsername, formData.confirmationCode);
+      
+      console.log('✅ Email verification successful, proceeding with sign-in...');
+      setSuccess('Email verified successfully! Signing you in...');
+      
+      // Now proceed with the actual sign-in using stored password
+      await signIn({
+        username: verificationUsername,
+        password: storedPassword
+      });
       
       console.log('✅ Sign-in successful after verification, proceeding to dashboard...');
       
