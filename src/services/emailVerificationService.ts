@@ -27,8 +27,16 @@ export class EmailVerificationService {
       console.error('❌ Error sending verification code via Cognito:', error);
       
       // Handle specific Cognito errors
-      if (error.code === 'NotAuthorizedException' && error.message.includes('Auto verification not turned on')) {
-        throw new Error('Email verification is not enabled for this user. Please contact support.');
+      if (error.code === 'NotAuthorizedException') {
+        if (error.message.includes('Auto verification not turned on')) {
+          // This error suggests the user pool configuration needs to be updated
+          console.error('🔧 Cognito user pool email verification not properly configured');
+          throw new Error('Email verification is not properly configured. Please contact support.');
+        } else if (error.message.includes('User does not exist')) {
+          throw new Error('User does not exist. Please sign up first.');
+        } else if (error.message.includes('User is already confirmed')) {
+          throw new Error('User is already verified. Please sign in.');
+        }
       }
       
       throw new Error(error.message || 'Failed to send verification code');
