@@ -1,3 +1,9 @@
+/**
+ * SafeMate User Context
+ * Manages user authentication state and user data
+ * Updated: 2025-01-15 - Fixed authentication to use real Cognito attributes instead of mock data
+ */
+
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
@@ -64,27 +70,33 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const currentUser = await getCurrentUser();
       
-      // Create a mock user based on auth user
-      const mockUser: User = {
-        id: currentUser.userId || 'mock-user-id',
-        username: currentUser.username || 'mock-username',
-        email: currentUser.signInDetails?.loginId || 'mock@example.com',
-        name: currentUser.username || 'Mock User',
-        account_type: 'personal',
+      // Get the user's attributes from Cognito
+      const { fetchUserAttributes } = await import('aws-amplify/auth');
+      const attributes = await fetchUserAttributes();
+      
+      console.log('🔍 UserContext: User attributes:', attributes);
+      
+      // Create a proper user object with real attributes
+      const user: User = {
+        id: currentUser.userId || 'unknown-user-id',
+        username: attributes.email || currentUser.username || 'unknown-username',
+        email: attributes.email || currentUser.signInDetails?.loginId || 'unknown@example.com',
+        name: attributes.given_name || attributes.email?.split('@')[0] || 'User',
+        account_type: attributes['custom:account_type'] || 'personal',
         wallet_created: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         signInDetails: currentUser.signInDetails,
         attributes: {
-          name: currentUser.username || 'Mock User',
-          'custom:account_type': 'personal',
-          given_name: currentUser.signInDetails?.loginId?.split('@')[0] || 'User',
-          family_name: '',
-          email: currentUser.signInDetails?.loginId || 'mock@example.com'
+          name: attributes.given_name || attributes.email?.split('@')[0] || 'User',
+          'custom:account_type': attributes['custom:account_type'] || 'personal',
+          given_name: attributes.given_name || attributes.email?.split('@')[0] || 'User',
+          family_name: attributes.family_name || '',
+          email: attributes.email || currentUser.signInDetails?.loginId || 'unknown@example.com'
         }
       };
 
-      setUser(mockUser);
+      setUser(user);
       setIsAuthenticated(true);
     } catch (err) {
       console.log('🔍 UserContext: No authenticated user found (this is normal on app startup)');
