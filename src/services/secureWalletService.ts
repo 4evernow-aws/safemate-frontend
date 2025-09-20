@@ -35,7 +35,7 @@ export interface SecureWalletInfo {
 }
 
 export class SecureWalletService {
-  private static readonly API_BASE_URL = (import.meta as any).env.VITE_ONBOARDING_API_URL || '';
+  private static readonly API_BASE_URL = (import.meta as any).env.VITE_ONBOARDING_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod';
   private static readonly NETWORK = hederaConfig.currentNetwork as 'testnet' | 'mainnet';
   private static readonly MIRROR_NODE_URL = hederaConfig.network[hederaConfig.currentNetwork as 'testnet' | 'mainnet'].mirrorNodeUrl;
 

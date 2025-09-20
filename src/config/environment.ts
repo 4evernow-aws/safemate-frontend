@@ -35,7 +35,7 @@ export interface EnvironmentConfig {
 
 // Environment detection and configuration
 const isProduction = import.meta.env.PROD;
-const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true' || (!isProduction && localStorage.getItem('safemate-demo-mode') === 'true') ? true : false; // Check env first, then localStorage only for local development
+const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true' ? true : false; // Only use environment variable, ignore localStorage
 const hederaNetwork = (import.meta.env.VITE_HEDERA_NETWORK as 'testnet' | 'mainnet') || 'testnet';
 
 // Debug logging for demo mode detection
@@ -71,12 +71,12 @@ export const config: EnvironmentConfig = {
   hederaJsonRpc: JSON_RPC_ENDPOINTS[hederaNetwork],
   
   // API endpoints (from terraform outputs)
-  vaultApiUrl: import.meta.env.VITE_VAULT_API_URL || '',
-  walletApiUrl: import.meta.env.VITE_WALLET_API_URL || import.meta.env.VITE_VAULT_API_URL || '',
-  hederaApiUrl: import.meta.env.VITE_HEDERA_API_URL || '',
-  onboardingApiUrl: import.meta.env.VITE_ONBOARDING_API_URL || '',
-  groupApiUrl: import.meta.env.VITE_GROUP_API_URL || '',
-  directoryApiUrl: import.meta.env.VITE_DIRECTORY_API_URL || '',
+  vaultApiUrl: import.meta.env.VITE_VAULT_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
+  walletApiUrl: import.meta.env.VITE_WALLET_API_URL || import.meta.env.VITE_VAULT_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
+  hederaApiUrl: import.meta.env.VITE_HEDERA_API_URL || 'https://2kwe2ly8vh.execute-api.ap-southeast-2.amazonaws.com/preprod',
+  onboardingApiUrl: import.meta.env.VITE_ONBOARDING_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
+  groupApiUrl: import.meta.env.VITE_GROUP_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
+  directoryApiUrl: import.meta.env.VITE_DIRECTORY_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
   
   // AWS Cognito configuration
   cognitoRegion: import.meta.env.VITE_COGNITO_REGION || 'ap-southeast-2',
