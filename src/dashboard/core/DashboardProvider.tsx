@@ -91,9 +91,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Get account type from user context - handle different possible attribute names
   const accountType = (
-    user?.account_type || 
+    (user?.account_type || 
     user?.attributes?.['custom:account_type'] ||
-    'personal'
+    'personal')?.toLowerCase()
   ) as AccountType;
 
   // Get widgets from global registry with memoization
