@@ -342,6 +342,30 @@ export default function ModernMyFiles() {
       return;
     }
 
+    // Validate folder name
+    const folderName = newFolderName.trim();
+    if (folderName.length > 50) {
+      enqueueSnackbar('Folder name must be 50 characters or less', { variant: 'error' });
+      return;
+    }
+
+    // Check for invalid characters
+    const invalidChars = /[<>:"/\\|?*]/;
+    if (invalidChars.test(folderName)) {
+      enqueueSnackbar('Folder name contains invalid characters. Please avoid: < > : " / \\ | ? *', { variant: 'error' });
+      return;
+    }
+
+    // Check if folder name already exists in the same location
+    const existingFolder = folders.find(f => 
+      f.name.toLowerCase() === folderName.toLowerCase() && 
+      f.parentFolderId === selectedParentFolderId
+    );
+    if (existingFolder) {
+      enqueueSnackbar('A folder with this name already exists in this location', { variant: 'error' });
+      return;
+    }
+
     // Check if selected parent folder would exceed depth limit
     if (selectedParentFolderId) {
       const parentFolder = folders.find(f => f.id === selectedParentFolderId);
@@ -356,14 +380,34 @@ export default function ModernMyFiles() {
 
     try {
       setIsCreatingFolder(true);
-      await createFolder(newFolderName.trim(), selectedParentFolderId);
+      console.log('📁 Creating folder on Hedera testnet:', folderName, selectedParentFolderId ? `(parent: ${selectedParentFolderId})` : '(root level)');
+      
+      const folderId = await createFolder(folderName, selectedParentFolderId);
+      
       setCreateFolderDialogOpen(false);
       setNewFolderName('');
       setSelectedParentFolderId(undefined);
-      enqueueSnackbar('Folder created successfully on blockchain!', { variant: 'success' });
+      
+      enqueueSnackbar(`✅ Folder "${folderName}" created successfully on Hedera testnet!`, { 
+        variant: 'success',
+        autoHideDuration: 4000 
+      });
+      
+      // Refresh folders to show the new folder
       await refreshFolders();
-    } catch {
-      enqueueSnackbar('Failed to create folder', { variant: 'error' });
+      
+      // Navigate to the newly created folder
+      if (folderId) {
+        navigateToFolder(folderId);
+      }
+      
+    } catch (error) {
+      console.error('❌ Failed to create folder:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create folder';
+      enqueueSnackbar(`❌ Failed to create folder: ${errorMessage}`, { 
+        variant: 'error',
+        autoHideDuration: 6000 
+      });
     } finally {
       setIsCreatingFolder(false);
     }
@@ -423,17 +467,26 @@ export default function ModernMyFiles() {
   const handleUploadFiles = async () => {
     const pendingFiles = uploadFiles.filter(f => f.status === 'pending');
     
+    if (pendingFiles.length === 0) {
+      enqueueSnackbar('No files to upload', { variant: 'info' });
+      return;
+    }
+
+    // Check if we're in root folder
+    if (getCurrentFolder.id === 'root') {
+      enqueueSnackbar('Please navigate to a folder before uploading files', { variant: 'warning' });
+      return;
+    }
+
+    console.log(`📤 Starting upload of ${pendingFiles.length} file(s) to Hedera testnet...`);
+    
     for (const fileToUpload of pendingFiles) {
       try {
         updateFileStatus(fileToUpload.id, { status: 'uploading', progress: 0 });
         
-        // Upload to current folder
-        const folderId = getCurrentFolder.id === 'root' ? undefined : getCurrentFolder.id;
-        if (!folderId) {
-          throw new Error('Please navigate to a folder before uploading files');
-        }
+        console.log(`📤 Uploading ${fileToUpload.file.name} (${formatFileSize(fileToUpload.file.size)}) to folder: ${getCurrentFolder.id}`);
 
-        await uploadFile(folderId, fileToUpload.file, (progress) => {
+        await uploadFile(getCurrentFolder.id, fileToUpload.file, (progress) => {
           updateFileStatus(fileToUpload.id, { progress });
         });
         
@@ -441,18 +494,33 @@ export default function ModernMyFiles() {
           status: 'completed', 
           progress: 100 
         });
-        enqueueSnackbar(`${fileToUpload.file.name} uploaded successfully!`, { variant: 'success' });
         
-        // Refresh folders to show new file
-        await refreshFolders();
+        enqueueSnackbar(`✅ ${fileToUpload.file.name} uploaded successfully to Hedera testnet!`, { 
+          variant: 'success',
+          autoHideDuration: 4000 
+        });
         
       } catch (error) {
+        console.error(`❌ Failed to upload ${fileToUpload.file.name}:`, error);
         updateFileStatus(fileToUpload.id, { 
           status: 'error', 
           error: error instanceof Error ? error.message : 'Upload failed' 
         });
-        enqueueSnackbar(`Failed to upload ${fileToUpload.file.name}`, { variant: 'error' });
+        
+        const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+        enqueueSnackbar(`❌ Failed to upload ${fileToUpload.file.name}: ${errorMessage}`, { 
+          variant: 'error',
+          autoHideDuration: 6000 
+        });
       }
+    }
+    
+    // Refresh folders to show new files
+    try {
+      await refreshFolders();
+      console.log('✅ Folders refreshed after upload');
+    } catch (error) {
+      console.error('❌ Failed to refresh folders:', error);
     }
   };
 
@@ -608,9 +676,14 @@ export default function ModernMyFiles() {
   if (!isInitialized || isLoading) {
     return (
       <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-          <CircularProgress />
-          <Typography sx={{ ml: 2 }}>Loading folders...</Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '50vh', gap: 3 }}>
+          <CircularProgress size={60} />
+          <Typography variant="h6" color="text.secondary">
+            Loading your files from Hedera testnet blockchain...
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', maxWidth: 400 }}>
+            Connecting to the Hedera network to retrieve your securely stored folders and files.
+          </Typography>
         </Box>
       </Container>
     );
@@ -622,6 +695,16 @@ export default function ModernMyFiles() {
 
              {/* Upload Queue */}
        {uploadFiles.length > 0 && <UploadQueue />}
+
+        {/* Blockchain Status */}
+        <Alert severity="success" sx={{ mb: 3, borderRadius: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <CheckCircleIcon />
+            <Typography>
+              Connected to Hedera testnet - All folders and files are stored securely on the blockchain
+            </Typography>
+          </Box>
+        </Alert>
 
                {/* Main Content */}
         <Box sx={{ 
@@ -667,10 +750,11 @@ export default function ModernMyFiles() {
         <Card sx={{ mb: 3, borderRadius: 3 }}>
           <CardContent sx={{ py: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Breadcrumbs
-                separator={<NavigateNextIcon fontSize="small" />}
-                sx={{ flexGrow: 1 }}
-              >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
+                <Breadcrumbs
+                  separator={<NavigateNextIcon fontSize="small" />}
+                  sx={{ flexGrow: 1 }}
+                >
                 {getBreadcrumbs.map((crumb, index) => (
                   <Link
                     key={crumb.id}
@@ -692,7 +776,23 @@ export default function ModernMyFiles() {
                 ))}
               </Breadcrumbs>
               
-                             <Box sx={{ display: 'flex', gap: 1 }}>
+              {/* Blockchain Status Indicator */}
+              <Chip
+                icon={<CheckCircleIcon />}
+                label="Hedera Testnet"
+                color="success"
+                variant="outlined"
+                size="small"
+                sx={{ 
+                  fontWeight: 600,
+                  '& .MuiChip-icon': {
+                    color: 'success.main'
+                  }
+                }}
+              />
+              </Box>
+              
+              <Box sx={{ display: 'flex', gap: 1 }}>
                  <IconButton onClick={() => refreshFolders()}>
                    <RefreshIcon />
                  </IconButton>
@@ -811,7 +911,7 @@ export default function ModernMyFiles() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 {searchTerm 
                   ? 'Try adjusting your search terms'
-                  : 'Upload files or create folders to get started'
+                  : 'Upload files or create folders to get started. All data is stored securely on the Hedera testnet blockchain.'
                 }
               </Typography>
                              {!searchTerm && (
@@ -871,6 +971,13 @@ export default function ModernMyFiles() {
                       setFileDetailsModalOpen(true);
                     }
                   }}
+                  onContextMenu={(e) => {
+                    if (item.type === 'folder') {
+                      e.preventDefault();
+                      // TODO: Add context menu for folder operations (rename, delete, etc.)
+                      enqueueSnackbar(`Right-click menu for "${item.name}" - Coming soon!`, { variant: 'info' });
+                    }
+                  }}
                 >
                   <CardContent sx={{ textAlign: 'center', py: 3 }}>
                     <Avatar 
@@ -924,7 +1031,15 @@ export default function ModernMyFiles() {
                  onChange={(e) => setNewFolderName(e.target.value)}
                  onKeyPress={(e) => e.key === 'Enter' && handleCreateFolder()}
                  placeholder="Enter folder name..."
-                                   helperText="Enter a name for your new folder"
+                 helperText={
+                   newFolderName.length > 50 
+                     ? `Folder name too long (${newFolderName.length}/50 characters)`
+                     : /[<>:"/\\|?*]/.test(newFolderName)
+                     ? 'Folder name contains invalid characters'
+                     : 'Enter a name for your new folder (stored on Hedera testnet)'
+                 }
+                 error={newFolderName.length > 50 || /[<>:"/\\|?*]/.test(newFolderName)}
+                 inputProps={{ maxLength: 50 }}
                />
              </Grid>
 
@@ -955,7 +1070,8 @@ export default function ModernMyFiles() {
                   </Select>
                 </FormControl>
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                  Select a parent folder to create this folder inside, or leave empty to create at root level.
+                  Select a parent folder to create this folder inside, or leave empty to create at root level. 
+                  Folders are stored on the Hedera testnet blockchain.
                 </Typography>
               </Grid>
 
@@ -983,17 +1099,30 @@ export default function ModernMyFiles() {
            <Button 
              onClick={handleCreateFolder} 
              variant="contained"
-             disabled={isCreatingFolder || !newFolderName.trim() || (() => {
-               if (!selectedParentFolderId) return false;
-               const parentFolder = folders.find(f => f.id === selectedParentFolderId);
-               if (parentFolder) {
-                 const parentPath = buildPathToFolder(parentFolder.id);
-                 return parentPath.length >= 6;
-               }
-               return false;
-             })()}
+             disabled={
+               isCreatingFolder || 
+               !newFolderName.trim() || 
+               newFolderName.length > 50 ||
+               /[<>:"/\\|?*]/.test(newFolderName) ||
+               (() => {
+                 if (!selectedParentFolderId) return false;
+                 const parentFolder = folders.find(f => f.id === selectedParentFolderId);
+                 if (parentFolder) {
+                   const parentPath = buildPathToFolder(parentFolder.id);
+                   return parentPath.length >= 6;
+                 }
+                 return false;
+               })()
+             }
            >
-             {isCreatingFolder ? <CircularProgress size={20} /> : 'Create Folder'}
+             {isCreatingFolder ? (
+               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                 <CircularProgress size={20} />
+                 <Typography>Creating on Hedera...</Typography>
+               </Box>
+             ) : (
+               'Create Folder on Hedera'
+             )}
            </Button>
          </DialogActions>
        </Dialog>
