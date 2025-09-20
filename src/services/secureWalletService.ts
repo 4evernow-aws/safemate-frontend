@@ -107,24 +107,24 @@ export class SecureWalletService {
       console.log('🔍 SecureWalletService: Response fields:', {
         success: response.success,
         hasWallet: response.hasWallet,
-        accountId: response.accountId,
-        publicKey: response.publicKey,
-        walletId: response.walletId
+        accountId: response.wallet?.hedera_account_id,
+        publicKey: response.wallet?.public_key,
+        walletId: response.wallet?.hedera_account_id
       });
       
-      if (response.success && response.hasWallet) {
+      if (response.success && response.hasWallet && response.wallet) {
         console.log('✅ SecureWalletService: Creating wallet object from response');
         return {
           userId: response.userId || 'unknown',
-          accountAlias: response.accountId,
-          publicKey: response.publicKey,
+          accountAlias: response.wallet.hedera_account_id,
+          publicKey: response.wallet.public_key,
           encryptionInfo: {
             kmsKeyId: response.encryption_info?.kmsKeyId || 'alias/safemate-master-key-dev',
             secretName: response.encryption_info?.secretName || 'safemate/hedera/private-keys-dev'
           },
           security: 'kms-enhanced',
-          accountType: 'auto_created_secure',
-          needsFunding: response.needsFunding || true,
+          accountType: response.wallet.account_type || 'auto_created_secure',
+          needsFunding: response.wallet.needs_funding || false,
           createdAt: response.created || new Date().toISOString(),
           version: response.version || '2.0-kms',
           autoAccountInfo: response.auto_account_info || {
