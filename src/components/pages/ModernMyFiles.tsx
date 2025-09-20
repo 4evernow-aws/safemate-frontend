@@ -415,8 +415,10 @@ export default function ModernMyFiles() {
 
   // Handle dialog open - set default parent to current folder
   const handleOpenCreateFolderDialog = () => {
+    console.log('📁 Opening create folder dialog...');
     setSelectedParentFolderId(getCurrentFolder.id === 'root' ? undefined : getCurrentFolder.id);
     setCreateFolderDialogOpen(true);
+    console.log('📁 Dialog state set to open');
   };
 
   
@@ -706,47 +708,7 @@ export default function ModernMyFiles() {
           </Box>
         </Alert>
 
-               {/* Main Content */}
-        <Box sx={{ 
-          minHeight: '70vh',
-          position: 'relative'
-        }}>
-          {/* Drag and drop area - only for the content area, not the header */}
-          <Box {...getRootProps()} sx={{ 
-            minHeight: '70vh',
-            border: isDragActive ? `2px dashed ${theme.palette.primary.main}` : '2px dashed transparent',
-            borderRadius: 3,
-            transition: 'all 0.2s ease',
-            backgroundColor: isDragActive ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
-            position: 'relative'
-          }}>
-            <input {...getInputProps()} />
-         
-         {/* Drag overlay */}
-         {isDragActive && (
-           <Box sx={{
-             position: 'absolute',
-             top: 0,
-             left: 0,
-             right: 0,
-             bottom: 0,
-             display: 'flex',
-             alignItems: 'center',
-             justifyContent: 'center',
-             backgroundColor: alpha(theme.palette.primary.main, 0.1),
-             zIndex: 1000,
-             borderRadius: 3,
-           }}>
-             <Box sx={{ textAlign: 'center' }}>
-               <UploadIcon sx={{ fontSize: 64, color: 'primary.main', mb: 2 }} />
-               <Typography variant="h5" color="primary.main">
-                 Drop files here to upload
-               </Typography>
-             </Box>
-           </Box>
-         )}
-
-        {/* Header with breadcrumbs and actions */}
+        {/* Header with breadcrumbs and actions - OUTSIDE dropzone */}
         <Card sx={{ mb: 3, borderRadius: 3 }}>
           <CardContent sx={{ py: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -837,10 +799,50 @@ export default function ModernMyFiles() {
                   >
                     New Folder
                   </Button>
-               </Box>
-            </Box>
-          </CardContent>
-        </Card>
+                </Box>
+          </Box>
+        </CardContent>
+      </Card>
+
+               {/* Main Content - WITH dropzone */}
+        <Box sx={{ 
+          minHeight: '70vh',
+          position: 'relative'
+        }}>
+          {/* Drag and drop area - only for the content area, not the header */}
+          <Box {...getRootProps()} sx={{ 
+            minHeight: '70vh',
+            border: isDragActive ? `2px dashed ${theme.palette.primary.main}` : '2px dashed transparent',
+            borderRadius: 3,
+            transition: 'all 0.2s ease',
+            backgroundColor: isDragActive ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+            position: 'relative'
+          }}>
+            <input {...getInputProps()} style={{ display: 'none' }} />
+         
+         {/* Drag overlay */}
+         {isDragActive && (
+           <Box sx={{
+             position: 'absolute',
+             top: 0,
+             left: 0,
+             right: 0,
+             bottom: 0,
+             display: 'flex',
+             alignItems: 'center',
+             justifyContent: 'center',
+             backgroundColor: alpha(theme.palette.primary.main, 0.1),
+             zIndex: 1000,
+             borderRadius: 3,
+           }}>
+             <Box sx={{ textAlign: 'center' }}>
+               <UploadIcon sx={{ fontSize: 64, color: 'primary.main', mb: 2 }} />
+               <Typography variant="h5" color="primary.main">
+                 Drop files here to upload
+               </Typography>
+             </Box>
+           </Box>
+         )}
 
         {/* Search and view controls */}
         <Card sx={{ mb: 3, borderRadius: 3 }}>
