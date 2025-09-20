@@ -24,7 +24,7 @@ export class UserService {
    */
   static async getUserProfile(): Promise<UserProfile | null> {
     try {
-      const cognitoUser = CognitoService.getCurrentUser();
+      const cognitoUser = await CognitoService.getCurrentUser();
       if (!cognitoUser) return null;
 
       const attributes = await this.getUserAttributes(cognitoUser);
@@ -73,7 +73,7 @@ export class UserService {
    */
   static async updateUserProfile(updates: Partial<UserProfile>): Promise<boolean> {
     try {
-      const cognitoUser = CognitoService.getCurrentUser();
+      const cognitoUser = await CognitoService.getCurrentUser();
       console.log('🔍 UserService: Cognito user object:', cognitoUser);
       
       if (!cognitoUser) {
