@@ -73,7 +73,7 @@ export const config: EnvironmentConfig = {
   // API endpoints (from terraform outputs)
   vaultApiUrl: import.meta.env.VITE_VAULT_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
   walletApiUrl: import.meta.env.VITE_WALLET_API_URL || import.meta.env.VITE_VAULT_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
-  hederaApiUrl: import.meta.env.VITE_HEDERA_API_URL || 'https://2kwe2ly8vh.execute-api.ap-southeast-2.amazonaws.com/preprod',
+  hederaApiUrl: import.meta.env.VITE_HEDERA_API_URL || 'https://uvk4xxwjyg.execute-api.ap-southeast-2.amazonaws.com/preprod',
   onboardingApiUrl: import.meta.env.VITE_ONBOARDING_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
   groupApiUrl: import.meta.env.VITE_GROUP_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
   directoryApiUrl: import.meta.env.VITE_DIRECTORY_API_URL || 'https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod',
