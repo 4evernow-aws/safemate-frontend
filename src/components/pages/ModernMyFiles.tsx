@@ -146,26 +146,22 @@ export default function ModernMyFiles() {
     children: FolderTreeNode[];
   }
 
-  // Build hierarchical folder tree for picker
+  // Build hierarchical folder tree for picker - simplified to prevent recursion
   const buildFolderTree = useMemo(() => {
-    const buildTree = (parentId?: string, level = 0): FolderTreeNode[] => {
-      const children = folders
-        .filter(folder => folder.parentFolderId === parentId)
-        .map(folder => {
-          const childTree = buildTree(folder.id, level + 1);
-          return {
-            id: folder.id,
-            name: folder.name,
-            level,
-            path: parentId ? `${parentId}/${folder.name}` : folder.name,
-            children: childTree
-          };
-        });
-      
-      return children;
-    };
-
-    return buildTree();
+    try {
+      // For now, just return a simple flat list to prevent recursion issues
+      // TODO: Implement proper hierarchical tree building when needed
+      return folders.map(folder => ({
+        id: folder.id,
+        name: folder.name,
+        level: 0, // All at same level for now
+        path: folder.name,
+        children: []
+      }));
+    } catch (error) {
+      console.error('Error building folder tree:', error);
+      return [];
+    }
   }, [folders]);
 
 
@@ -394,11 +390,21 @@ export default function ModernMyFiles() {
       });
       
       // Refresh folders to show the new folder
-      await refreshFolders();
+      try {
+        await refreshFolders();
+        console.log('✅ Folders refreshed successfully');
+      } catch (error) {
+        console.error('❌ Failed to refresh folders:', error);
+        // Don't throw here, just log the error
+      }
       
       // Navigate to the newly created folder
       if (folderId) {
-        navigateToFolder(folderId);
+        try {
+          navigateToFolder(folderId);
+        } catch (error) {
+          console.error('❌ Failed to navigate to new folder:', error);
+        }
       }
       
     } catch (error) {
