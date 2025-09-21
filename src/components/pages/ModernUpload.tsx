@@ -58,6 +58,7 @@ import {
   FileUpload as FileUploadIcon,
   Security as SecurityIcon,
   ExpandMore as ExpandMoreIcon,
+  Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { useDropzone } from 'react-dropzone';
 import { useSnackbar } from 'notistack';
@@ -716,6 +717,167 @@ export default function ModernUpload() {
               </CardContent>
             </Card>
 
+            {/* Created Items Window */}
+            <Card sx={{ mb: 3, borderRadius: 3 }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" fontWeight={700}>
+                    📁 Created Items
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <IconButton
+                      size="small"
+                      onClick={refreshFolders}
+                      sx={{ 
+                        color: 'primary.main',
+                        '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.1) }
+                      }}
+                    >
+                      <RefreshIcon fontSize="small" />
+                    </IconButton>
+                    <Chip
+                      label={`${transformedFolders.length} folders`}
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                      sx={{ borderRadius: 2 }}
+                    />
+                  </Box>
+                </Box>
+                <Divider sx={{ mb: 2 }} />
+                
+                {transformedFolders.length > 0 ? (
+                  <Stack spacing={1}>
+                    {transformedFolders.slice(0, 5).map((folder) => (
+                      <Box
+                        key={folder.id}
+                        onClick={() => setSelectedFolderId(folder.id)}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          p: 1.5,
+                          borderRadius: 2,
+                          backgroundColor: selectedFolderId === folder.id 
+                            ? alpha(theme.palette.primary.main, 0.15)
+                            : alpha(theme.palette.primary.main, 0.05),
+                          border: `1px solid ${
+                            selectedFolderId === folder.id 
+                              ? alpha(theme.palette.primary.main, 0.3)
+                              : alpha(theme.palette.primary.main, 0.1)
+                          }`,
+                          transition: 'all 0.2s ease-in-out',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                            borderColor: alpha(theme.palette.primary.main, 0.2),
+                            transform: 'translateY(-1px)',
+                            boxShadow: `0 2px 8px ${alpha(theme.palette.primary.main, 0.2)}`,
+                          }
+                        }}
+                      >
+                        <Avatar
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            bgcolor: 'primary.main',
+                            fontSize: '0.875rem'
+                          }}
+                        >
+                          <FolderIcon fontSize="small" />
+                        </Avatar>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography 
+                            variant="body2" 
+                            fontWeight={600}
+                            sx={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {folder.name}
+                          </Typography>
+                          <Typography 
+                            variant="caption" 
+                            color="text.secondary"
+                            sx={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              display: 'block'
+                            }}
+                          >
+                            {folder.files.length} files • {formatFileSize(folder.files.reduce((sum, file) => sum + file.size, 0))}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
+                          <Chip
+                            label={selectedFolderId === folder.id ? "Selected" : "Active"}
+                            size="small"
+                            color={selectedFolderId === folder.id ? "primary" : "success"}
+                            variant={selectedFolderId === folder.id ? "filled" : "outlined"}
+                            sx={{ borderRadius: 2, fontSize: '0.75rem' }}
+                          />
+                          {folder.files.length > 0 && (
+                            <Typography variant="caption" color="text.secondary">
+                              {folder.files.length} files
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    ))}
+                    
+                    {transformedFolders.length > 5 && (
+                      <Box sx={{ textAlign: 'center', pt: 1 }}>
+                        <Typography variant="caption" color="text.secondary">
+                          +{transformedFolders.length - 5} more folders
+                        </Typography>
+                      </Box>
+                    )}
+                    
+                    <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        startIcon={<FolderIcon />}
+                        onClick={() => {
+                          // Navigate to MyFiles page or open folder management
+                          if (window.location.pathname !== '/myfiles') {
+                            window.location.href = '/myfiles';
+                          }
+                        }}
+                        sx={{ borderRadius: 2 }}
+                      >
+                        View All Folders
+                      </Button>
+                    </Box>
+                  </Stack>
+                ) : (
+                  <Box sx={{ textAlign: 'center', py: 3 }}>
+                    <Avatar
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        mx: 'auto',
+                        mb: 2,
+                        bgcolor: alpha(theme.palette.grey[500], 0.1)
+                      }}
+                    >
+                      <FolderIcon color="disabled" />
+                    </Avatar>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      No folders created yet
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Create your first folder to organize your files
+                    </Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Upload Tips */}
             <Card sx={{ mb: 3, borderRadius: 3 }}>
               <CardContent>
@@ -790,7 +952,17 @@ export default function ModernUpload() {
         <Dialog 
           open={createFolderDialogOpen} 
           onClose={() => setCreateFolderDialogOpen(false)}
-          PaperProps={{ sx: { borderRadius: 3 } }}
+          PaperProps={{ 
+            sx: { 
+              borderRadius: 3,
+              zIndex: 1300, // Ensure dialog is above other elements
+            } 
+          }}
+          BackdropProps={{
+            sx: {
+              zIndex: 1299, // Ensure backdrop is below dialog but above other elements
+            }
+          }}
           maxWidth="sm"
           fullWidth
         >
@@ -814,6 +986,22 @@ export default function ModernUpload() {
                 value={selectedParentFolderId || ''}
                 label="Parent Folder (Optional)"
                 onChange={(e) => setSelectedParentFolderId(e.target.value || null)}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      zIndex: 1400, // Ensure dropdown menu is above dialog
+                      maxHeight: 300, // Limit height to prevent overflow
+                    }
+                  },
+                  anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  },
+                  transformOrigin: {
+                    vertical: 'top',
+                    horizontal: 'left',
+                  },
+                }}
               >
                 <MenuItem value="">
                   <em>Root Level (No Parent)</em>

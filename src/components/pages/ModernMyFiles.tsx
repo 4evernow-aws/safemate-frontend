@@ -1,3 +1,23 @@
+/**
+ * SafeMate MyFiles Page Component
+ * 
+ * Environment: preprod
+ * Purpose: File and folder management interface with Hedera blockchain integration
+ * 
+ * Features:
+ * - Create folders and subfolders on Hedera testnet
+ * - Upload files to blockchain storage
+ * - Drag and drop file uploads
+ * - Real-time validation and user feedback
+ * - Breadcrumb navigation
+ * - Blockchain status indicators
+ * 
+ * Last Updated: September 21, 2025
+ * Status: Enhanced with improved dialog handling and validation
+ * Fixed: Multiple dialog overlay issues and folder creation validation
+ * Fixed: Transaction endpoint integration for real blockchain data
+ */
+
 import React, { useState, useCallback, useMemo } from 'react';
 import {
   Container,
@@ -333,6 +353,11 @@ export default function ModernMyFiles() {
 
   // Handle folder creation
   const handleCreateFolder = async () => {
+    if (isCreatingFolder) {
+      console.log('📁 Folder creation already in progress, ignoring duplicate request');
+      return;
+    }
+    
     if (!newFolderName.trim()) {
       enqueueSnackbar('Please enter a folder name', { variant: 'error' });
       return;
@@ -421,6 +446,10 @@ export default function ModernMyFiles() {
 
   // Handle dialog open - set default parent to current folder
   const handleOpenCreateFolderDialog = () => {
+    if (createFolderDialogOpen) {
+      console.log('📁 Dialog already open, ignoring duplicate open request');
+      return;
+    }
     console.log('📁 Opening create folder dialog...');
     setSelectedParentFolderId(getCurrentFolder.id === 'root' ? undefined : getCurrentFolder.id);
     setCreateFolderDialogOpen(true);
@@ -1018,12 +1047,22 @@ export default function ModernMyFiles() {
         </Box>
 
              {/* Create Folder Dialog */}
-       <Dialog 
-         open={createFolderDialogOpen} 
-         onClose={() => setCreateFolderDialogOpen(false)}
-         maxWidth="md"
-         fullWidth
-       >
+      <Dialog 
+        open={createFolderDialogOpen} 
+        onClose={() => setCreateFolderDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            zIndex: 1300, // Ensure dialog is above other elements
+          }
+        }}
+        BackdropProps={{
+          sx: {
+            zIndex: 1299, // Ensure backdrop is below dialog but above other elements
+          }
+        }}
+      >
                    <DialogTitle>
             <Typography variant="h6">Create New Folder</Typography>
           </DialogTitle>
@@ -1060,6 +1099,22 @@ export default function ModernMyFiles() {
                     onChange={(e) => setSelectedParentFolderId(e.target.value || undefined)}
                     label="Parent Folder (Optional)"
                     displayEmpty
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          zIndex: 1400, // Ensure dropdown menu is above dialog
+                          maxHeight: 300, // Limit height to prevent overflow
+                        }
+                      },
+                      anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      },
+                      transformOrigin: {
+                        vertical: 'top',
+                        horizontal: 'left',
+                      },
+                    }}
                   >
                     <MenuItem value="">
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -1069,9 +1124,24 @@ export default function ModernMyFiles() {
                     </MenuItem>
                     {buildFolderTree.map((folder) => (
                       <MenuItem key={folder.id} value={folder.id}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 1,
+                          width: '100%',
+                          overflow: 'hidden'
+                        }}>
                           <FolderIcon fontSize="small" />
-                          <Typography>{folder.name}</Typography>
+                          <Typography 
+                            sx={{ 
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              maxWidth: '200px'
+                            }}
+                          >
+                            {folder.name}
+                          </Typography>
                         </Box>
                       </MenuItem>
                     ))}
