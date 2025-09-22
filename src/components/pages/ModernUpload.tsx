@@ -808,7 +808,7 @@ export default function ModernUpload() {
                               display: 'block'
                             }}
                           >
-                            {folder.files.length} files • {formatFileSize(folder.files.reduce((sum, file) => sum + file.size, 0))}
+                            {folder.files.length} files • {formatFileSize(folder.files.reduce((sum: number, file: any) => sum + file.size, 0))}
                           </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>

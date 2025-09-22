@@ -620,51 +620,23 @@ export default function ModernLogin({ onAuthSuccess, onOnboardingNeeded, forceSh
       console.log('🔍 Starting sign in process with email verification...');
       
       // For security, ALL users (new and existing) must go through email verification
-      // First, validate credentials by attempting sign-in
-      try {
-        const signInResult = await signIn({
-          username: formData.username,
-          password: formData.password
-        });
-        
-        console.log('✅ Credentials validated, proceeding to email verification...');
-        
-        // Store the password for later use after verification
-        setStoredPassword(formData.password);
-        setVerificationUsername(formData.username);
-        
-        // Send verification code for extra security layer
-        const { EmailVerificationService } = await import('../services/emailVerificationService');
-        await EmailVerificationService.sendVerificationCode(formData.username);
-        
-        console.log('📧 Email verification code sent for security verification');
-        setSuccess('Verification code sent to your email. Please enter the code to complete sign-in.');
-        setMode('signin-verify');
-        
-      } catch (signInErr: any) {
-        console.error('❌ Sign in error:', signInErr);
-        
-        // Check if user needs email verification (unconfirmed account)
-        if (signInErr.code === 'UserNotConfirmedException' || 
-            signInErr.name === 'UserNotConfirmedException' ||
-            signInErr.message?.includes('not confirmed') ||
-            signInErr.message?.includes('verification')) {
-          
-          console.log('📧 User account not confirmed, sending verification code...');
-          setVerificationUsername(formData.username);
-          setStoredPassword(formData.password);
-          
-          // Send verification code for unconfirmed account
-          const { EmailVerificationService } = await import('../services/emailVerificationService');
-          await EmailVerificationService.sendVerificationCode(formData.username);
-          
-          setSuccess('Verification code sent to your email. Please enter the code to confirm your account.');
-          setMode('signin-verify');
-        } else {
-          // Invalid credentials
-          setError(signInErr.message || 'Invalid username or password');
-        }
-      }
+      // Store credentials and proceed directly to verification step
+      console.log('🔍 Starting enhanced security verification flow...');
+      
+      // Store the password for later use after verification
+      setStoredPassword(formData.password);
+      setVerificationUsername(formData.username);
+      
+      // Send verification code for extra security layer
+      const { EmailVerificationService } = await import('../services/emailVerificationService');
+      await EmailVerificationService.sendVerificationCode(formData.username);
+      
+      console.log('📧 Email verification code sent for security verification');
+      setSuccess('Verification code sent to your email. Please enter the code to complete sign-in.');
+      setMode('signin-verify');
+      
+      // Don't proceed to dashboard yet - wait for verification
+      return;
       
     } catch (err: any) {
       console.error('❌ Sign in process error:', err);

@@ -165,7 +165,7 @@ VITE_COGNITO_REGION=ap-southeast-2
 VITE_COGNITO_USER_POOL_ID=ap-southeast-2_pMo5BXFiM
 VITE_COGNITO_CLIENT_ID=1a0trpjfgv54odl9csqlcbkuii
 VITE_COGNITO_DOMAIN=preprod-safemate-auth-wmacwrsy
-VITE_APP_URL=https://d1f6ux6bexgm7o.cloudfront.net
+VITE_APP_URL=https://d2xl0r3mv20sy5.cloudfront.net
 VITE_ONBOARDING_API_URL=https://ol212feqdl.execute-api.ap-southeast-2.amazonaws.com/preprod
 ```
 

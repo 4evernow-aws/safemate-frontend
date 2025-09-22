@@ -435,13 +435,9 @@ export function HederaProvider({ children }: HederaProviderProps) {
       
       // Handle both response structures: direct data.folders or nested data.data.folders
       let foldersData = null;
-      if (foldersResult.success && foldersResult.data) {
-        if (foldersResult.data.folders) {
-          foldersData = foldersResult.data.folders;
-        } else if (foldersResult.data.data && foldersResult.data.data.folders) {
-          foldersData = foldersResult.data.data.folders;
-        }
-      }
+    if (foldersResult.success && foldersResult.data) {
+      foldersData = foldersResult.data;
+    }
 
       if (foldersData) {
         console.log('✅ Folders API call successful, data:', foldersData);

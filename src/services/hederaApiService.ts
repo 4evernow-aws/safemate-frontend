@@ -460,27 +460,9 @@ export class HederaApiService {
    */
   static async getAccountTransactions(accountId: string, limit: number = 10): Promise<ApiResponse<any[]>> {
     try {
-      // Strip alias- prefix if present
-      const formattedAccountId = accountId.startsWith('alias-') ? accountId.replace('alias-', '') : accountId;
-      const response = await fetch(getHederaMirrorUrl(`/accounts/${formattedAccountId}/transactions?limit=${limit}&order=desc`));
-      
-      if (!response.ok) {
-        // Handle 404 as "no transactions found" (normal for new accounts)
-        if (response.status === 404) {
-          console.log('ℹ️ No transactions found for account (404) - this is normal for new accounts');
-          return {
-            success: true,
-            data: []
-          };
-        }
-        throw new Error(`Mirror node request failed: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return {
-        success: true,
-        data: data.transactions || []
-      };
+      // Use the Hedera API Gateway instead of mirror node
+      const result = await this.makeHederaApiRequest<any[]>(`/transactions?accountId=${accountId}&limit=${limit}`);
+      return result;
     } catch (error) {
       console.error('Error getting transactions:', error);
       return {
