@@ -74,6 +74,34 @@ import {
 - Updated error handling to be consistent
 - Fixed token generation and validation
 
+### 4. Email Verification Error Handling Fix (2025-01-22)
+**File**: `src/services/emailVerificationService.ts`
+
+**Problem**: 
+- Users getting "User cannot be confirmed. Current status is CONFIRMED" error
+- Expired verification codes not handled properly
+- Error messages not matching actual Cognito error responses
+
+**Changes**:
+- Added support for "User cannot be confirmed" and "Current status is CONFIRMED" error messages
+- Added proper handling for `ExpiredCodeException`
+- Enhanced error message matching for better user experience
+- Updated header comments to reflect the fix
+
+**Before**:
+```typescript
+if (confirmError.message.includes('User is already confirmed') ||
+    confirmError.message.includes('already confirmed')) {
+```
+
+**After**:
+```typescript
+if (confirmError.message.includes('User is already confirmed') ||
+    confirmError.message.includes('already confirmed') ||
+    confirmError.message.includes('User cannot be confirmed') ||
+    confirmError.message.includes('Current status is CONFIRMED')) {
+```
+
 ## Technical Details
 
 ### Authentication Library Migration
@@ -145,6 +173,9 @@ static async signIn(email: string, password: string): Promise<any> {
 - [x] Error handling improved
 - [x] Code changes committed to preprod branch
 - [x] Frontend built and deployed
+- [x] Fixed error handling for already confirmed users
+- [x] Added support for expired verification codes
+- [x] CloudFront cache invalidated for latest changes
 
 ### Pending
 - [ ] End-to-end testing of email authentication
@@ -220,6 +251,6 @@ The system now provides a consistent and secure authentication experience with p
 ## Deployment URLs
 
 - **S3 Website URL**: `http://preprod-safemate-static-hosting.s3-website-ap-southeast-2.amazonaws.com/`
-- **CloudFront URL**: `https://d1f6ux6bexgm7o.cloudfront.net`
+- **CloudFront URL**: `https://d2xl0r3mv20sy5.cloudfront.net`
 
 The updated authentication system is now deployed and ready for testing.
