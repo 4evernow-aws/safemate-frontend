@@ -433,14 +433,24 @@ export function HederaProvider({ children }: HederaProviderProps) {
       const foldersResult = await HederaApiService.listFolders();
       console.log('📁 listFolders API response:', foldersResult);
       
-      // Handle both response structures: direct data.folders or nested data.data.folders
-      let foldersData = null;
-    if (foldersResult.success && foldersResult.data) {
-      foldersData = foldersResult.data;
-    }
+      // Handle the response structure - data should be an array of HederaFolderInfo
+      let foldersArray = null;
+      if (foldersResult.success && foldersResult.data) {
+        // Check if data is directly an array (expected structure)
+        if (Array.isArray(foldersResult.data)) {
+          foldersArray = foldersResult.data;
+        }
+        // Handle nested structure if it exists (fallback)
+        else if (foldersResult.data && typeof foldersResult.data === 'object' && 'folders' in foldersResult.data) {
+          const nestedData = foldersResult.data as any;
+          if (Array.isArray(nestedData.folders)) {
+            foldersArray = nestedData.folders;
+          }
+        }
+      }
 
-      if (foldersData) {
-        console.log('✅ Folders API call successful, data:', foldersData);
+      if (foldersArray) {
+        console.log('✅ Folders API call successful, data:', foldersArray);
         // Recursively transform the hierarchical folder structure
         const transformFolder = (folder: any): HederaFolder => ({
           id: folder.tokenId || folder.id,
@@ -458,7 +468,7 @@ export function HederaProvider({ children }: HederaProviderProps) {
           updatedAt: folder.updatedAt
         });
 
-        const transformedFolders = foldersData.map(transformFolder);
+        const transformedFolders = foldersArray.map(transformFolder);
        
        setFolders(transformedFolders);
        console.log('✅ Loaded folders from blockchain:', transformedFolders.length);
