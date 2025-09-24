@@ -34,12 +34,14 @@ export interface EnvironmentConfig {
 }
 
 // Environment detection and configuration
-const isProduction = import.meta.env.PROD;
+const isProduction = import.meta.env.MODE === 'production';
+const isPreprod = import.meta.env.MODE === 'preprod';
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true' ? true : false; // Only use environment variable, ignore localStorage
 const hederaNetwork = (import.meta.env.VITE_HEDERA_NETWORK as 'testnet' | 'mainnet') || 'testnet';
 
 // Debug logging for demo mode detection
 console.log('🔧 Environment Debug:', {
+  mode: import.meta.env.MODE,
   isProduction,
   viteDemoMode: import.meta.env.VITE_DEMO_MODE,
   localStorageDemoMode: localStorage.getItem('safemate-demo-mode'),
@@ -137,10 +139,14 @@ export function isTestnetMode(): boolean {
 
 export function logEnvironmentInfo(): void {
   if (config.isDebugMode) {
+    let environment = 'DEVELOPMENT';
+    if (isProduction) environment = 'PRODUCTION';
+    else if (isPreprod) environment = 'PREPROD';
+    
     console.log('🔧 SafeMate Environment Configuration:', {
       mode: config.isDemoMode ? 'DEMO' : 'REAL',
       network: config.hederaNetwork.toUpperCase(),
-      environment: config.isProduction ? 'PRODUCTION' : 'DEVELOPMENT',
+      environment: environment,
       vaultApiConfigured: !!config.vaultApiUrl,
       cognitoConfigured: !!config.cognitoUserPoolId,
     });

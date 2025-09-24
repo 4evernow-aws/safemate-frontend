@@ -12,10 +12,11 @@
  * - Breadcrumb navigation
  * - Blockchain status indicators
  * 
- * Last Updated: September 21, 2025
+ * Last Updated: September 22, 2025
  * Status: Enhanced with improved dialog handling and validation
  * Fixed: Multiple dialog overlay issues and folder creation validation
  * Fixed: Transaction endpoint integration for real blockchain data
+ * Fixed: Text overlay issue in create folder dialog dropdown (z-index fix)
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
@@ -1102,10 +1103,11 @@ export default function ModernMyFiles() {
                     MenuProps={{
                       PaperProps: {
                         sx: {
-                          zIndex: 1400, // Ensure dropdown menu is above dialog
+                          zIndex: 1500, // Ensure dropdown menu is above dialog
                           maxHeight: 300, // Limit height to prevent overflow
                         }
                       },
+                      disablePortal: false, // Allow portal to render outside dialog
                       anchorOrigin: {
                         vertical: 'bottom',
                         horizontal: 'left',

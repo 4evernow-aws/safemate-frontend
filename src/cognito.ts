@@ -11,7 +11,8 @@ import {
   signOut, 
   getCurrentUser, 
   fetchAuthSession,
-  resendSignUpCode
+  resendSignUpCode,
+  resetPassword
 } from 'aws-amplify/auth';
 
 export interface AuthUser {
@@ -111,6 +112,17 @@ export class CognitoService {
     try {
       const result = await resendSignUpCode({
         username: email,
+      });
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async forgotPassword(username: string): Promise<any> {
+    try {
+      const result = await resetPassword({
+        username: username,
       });
       return result;
     } catch (error) {

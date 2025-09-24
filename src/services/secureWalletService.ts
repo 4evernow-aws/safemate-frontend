@@ -877,6 +877,7 @@ export class SecureWalletService {
 
   /**
    * Test API Gateway configuration and authentication
+   * Updated: 2025-01-22 - Enhanced debugging for 401 errors
    */
   static async testApiGatewayConfiguration(): Promise<void> {
     console.log('🔍 SecureWalletService: Testing API Gateway configuration...');
@@ -999,6 +1000,163 @@ export class SecureWalletService {
   }
 
   /**
+   * Comprehensive debugging method for wallet authentication issues
+   * Updated: 2025-01-22 - Enhanced debugging for 401 errors and API Gateway issues
+   */
+  static async debugWalletAuthentication(): Promise<void> {
+    console.log('🔍 SecureWalletService: Starting comprehensive wallet authentication debug...');
+    
+    try {
+      // Step 1: Test token retrieval
+      console.log('🔍 Step 1: Testing token retrieval...');
+      const idToken = await TokenService.getValidIdToken();
+      const accessToken = await TokenService.getValidAccessToken();
+      
+      console.log('🔍 Token status:', {
+        hasIdToken: !!idToken,
+        hasAccessToken: !!accessToken,
+        idTokenLength: idToken?.length || 0,
+        accessTokenLength: accessToken?.length || 0
+      });
+      
+      if (!idToken && !accessToken) {
+        console.error('❌ No tokens available - user needs to authenticate');
+        return;
+      }
+      
+      // Step 2: Analyze token payload
+      if (idToken) {
+        console.log('🔍 Step 2: Analyzing ID token payload...');
+        try {
+          const tokenParts = idToken.split('.');
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            console.log('🔍 ID Token payload analysis:', {
+              iss: payload.iss,
+              aud: payload.aud,
+              exp: payload.exp,
+              iat: payload.iat,
+              sub: payload.sub,
+              token_use: payload.token_use,
+              'cognito:username': payload['cognito:username'],
+              'cognito:groups': payload['cognito:groups']
+            });
+            
+            // Check if token is expired
+            const now = Math.floor(Date.now() / 1000);
+            const isExpired = now > payload.exp;
+            console.log('🔍 Token expiry check:', {
+              currentTime: now,
+              tokenExpiry: payload.exp,
+              isExpired,
+              timeUntilExpiry: payload.exp - now
+            });
+            
+            if (isExpired) {
+              console.error('❌ Token is expired!');
+              return;
+            }
+          }
+        } catch (decodeError) {
+          console.error('❌ Could not decode token:', decodeError);
+        }
+      }
+      
+      // Step 3: Test API Gateway connectivity
+      console.log('🔍 Step 3: Testing API Gateway connectivity...');
+      const url = `${this.API_BASE_URL}/onboarding/status`;
+      console.log('🔍 Testing URL:', url);
+      
+      // Test with different authentication approaches
+      const testCases = [
+        {
+          name: 'ID Token with Bearer',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
+            'Accept': 'application/json'
+          }
+        },
+        {
+          name: 'Access Token with Bearer',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json'
+          }
+        }
+      ];
+      
+      for (const testCase of testCases) {
+        if (!testCase.headers.Authorization.includes('Bearer ')) continue;
+        
+        console.log(`🔍 Testing: ${testCase.name}`);
+        try {
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: testCase.headers,
+            credentials: 'omit'
+          });
+          
+          console.log(`🔍 ${testCase.name} response:`, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries())
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log(`✅ ${testCase.name} successful:`, data);
+            return;
+          } else {
+            const errorText = await response.text();
+            console.log(`❌ ${testCase.name} failed:`, errorText);
+            
+            // Detailed 401 analysis
+            if (response.status === 401) {
+              console.error(`🔍 401 Analysis for ${testCase.name}:`);
+              console.error(`  - This means the API Gateway Cognito Authorizer rejected the token`);
+              console.error(`  - Possible causes:`);
+              console.error(`    1. Token format is incorrect`);
+              console.error(`    2. Token is expired`);
+              console.error(`    3. Token is from wrong Cognito User Pool`);
+              console.error(`    4. API Gateway authorizer configuration issue`);
+              console.error(`    5. CORS preflight failure`);
+            }
+          }
+        } catch (error) {
+          console.error(`❌ ${testCase.name} error:`, error);
+        }
+      }
+      
+      // Step 4: Test CORS preflight
+      console.log('🔍 Step 4: Testing CORS preflight...');
+      try {
+        const response = await fetch(url, {
+          method: 'OPTIONS',
+          headers: {
+            'Origin': 'https://d2xl0r3mv20sy5.cloudfront.net',
+            'Access-Control-Request-Method': 'GET',
+            'Access-Control-Request-Headers': 'Authorization,Content-Type'
+          }
+        });
+        
+        console.log('🔍 CORS preflight response:', {
+          status: response.status,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+      } catch (error) {
+        console.error('❌ CORS preflight failed:', error);
+      }
+      
+      console.log('❌ All authentication tests failed');
+      
+    } catch (error) {
+      console.error('❌ Wallet authentication debug failed:', error);
+    }
+  }
+
+  /**
    * Debug method to test token format and API Gateway authorizer
    */
   static async debugTokenFormat(): Promise<void> {
@@ -1091,6 +1249,8 @@ export class SecureWalletService {
 
   /**
    * Make authenticated request to backend
+   * Updated: 2025-01-22 - Fixed authentication issues and improved error handling
+   * Updated: 2025-01-22 - Enhanced 401 debugging and token validation
    */
   private static async makeAuthenticatedRequest(
     endpoint: string,
@@ -1100,9 +1260,6 @@ export class SecureWalletService {
     try {
       console.log(`🔍 SecureWalletService: Starting ${method} request to ${endpoint}`);
       console.log(`🔍 SecureWalletService: API_BASE_URL = ${this.API_BASE_URL}`);
-      
-      // All APIs now use authentication
-      console.log('🔍 SecureWalletService: Using authenticated API');
       
       // Get user's auth token with automatic refresh
       // Try ID token first, then fall back to access token
@@ -1123,7 +1280,6 @@ export class SecureWalletService {
       console.log(`🔍 SecureWalletService: Token details:`);
       console.log(`  - Token length: ${token.length}`);
       console.log(`  - Token preview: ${token.substring(0, 50)}...`);
-      console.log(`  - Token ends with: ...${token.substring(token.length - 20)}`);
       
       // Enhanced token payload debugging
       try {
@@ -1137,20 +1293,23 @@ export class SecureWalletService {
             iat: payload.iat,
             sub: payload.sub,
             token_use: payload.token_use,
-            scope: payload.scope,
-            auth_time: payload.auth_time,
-            'cognito:groups': payload['cognito:groups'],
             'cognito:username': payload['cognito:username']
           });
           
           // Check if token is expired
           const now = Math.floor(Date.now() / 1000);
+          const isExpired = now > payload.exp;
           console.log(`🔍 SecureWalletService: Token expiry check:`, {
             currentTime: now,
             tokenExpiry: payload.exp,
-            isExpired: now > payload.exp,
+            isExpired,
             timeUntilExpiry: payload.exp - now
           });
+          
+          if (isExpired) {
+            console.error('❌ SecureWalletService: Token is expired!');
+            throw new Error('Token is expired - please sign in again');
+          }
           
           // Verify this is the right token type for Cognito User Pools
           if (payload.token_use === 'id') {
@@ -1168,25 +1327,20 @@ export class SecureWalletService {
       const url = `${this.API_BASE_URL}${endpoint}`;
       console.log(`🔍 SecureWalletService: Full URL = ${url}`);
       
-      // Use only the standard Bearer format that API Gateway Cognito Authorizer expects
-      const headerVariations = [
-        {
-          name: 'Standard Bearer (API Gateway Cognito Authorizer)',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          } as Record<string, string>
-        }
-      ];
+      // Use the standard Bearer format that API Gateway Cognito Authorizer expects
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      };
 
       try {
         console.log(`🔍 SecureWalletService: Making authenticated request...`);
         
         const requestOptions: RequestInit = {
           method,
-          headers: headerVariations[0].headers,
-          credentials: 'omit' // Changed from 'include' to 'omit' for development
+          headers,
+          credentials: 'omit'
         };
 
         if (body && method !== 'GET') {
@@ -1216,13 +1370,8 @@ export class SecureWalletService {
             console.error(`  - Token length: ${token.length}`);
             console.error(`  - Request URL: ${url}`);
             console.error(`  - Request method: ${method}`);
-            console.error(`  - Request headers:`, headerVariations[0].headers);
+            console.error(`  - Request headers:`, headers);
             console.error(`  - Response body: ${errorText}`);
-            
-            // Check if it's a CORS preflight issue
-            if (method === 'OPTIONS') {
-              console.error(`  - This might be a CORS preflight issue`);
-            }
             
             // Check if it's a token validation issue
             if (errorText.includes('token') || errorText.includes('authorization')) {
