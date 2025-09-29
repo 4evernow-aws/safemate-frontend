@@ -1,0 +1,18 @@
+{
+  "_comment": "SafeMate PostConfirmation Lambda Dependencies - Preprod Environment - Updated: September 23, 2025",
+  "name": "post-confirmation-wallet-creator",
+  "version": "1.0.0",
+  "description": "SafeMate PostConfirmation Lambda for wallet creation",
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.0.0",
+    "@aws-sdk/client-kms": "^3.0.0",
+    "@hashgraph/sdk": "^2.73.1",
+    "long": "^5.2.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

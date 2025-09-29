@@ -1,0 +1,45 @@
+name: Deploy Frontend
+on:
+  push:
+    branches: [dev, preprod, main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build for environment
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
+            cp environments/.env.dev .env
+            npm run build:dev
+          elif [ "${{ github.ref }}" == "refs/heads/preprod" ]; then
+            cp environments/.env.preprod .env
+            npm run build:preprod
+          else
+            cp environments/.env.production .env
+            npm run build:production
+          fi
+      
+      - name: Deploy to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
+            aws s3 sync dist/ s3://dev-safemate-static-hosting --delete
+          elif [ "${{ github.ref }}" == "refs/heads/preprod" ]; then
+            aws s3 sync dist/ s3://preprod-safemate-static-hosting --delete
+          else
+            aws s3 sync dist/ s3://prod-safemate-static-hosting --delete
+          fi

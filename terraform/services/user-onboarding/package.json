@@ -1,0 +1,17 @@
+{
+  "_comment": "SafeMate User Onboarding Lambda Dependencies - Preprod Environment - Updated: January 22, 2025",
+  "name": "user-onboarding",
+  "version": "1.0.0",
+  "description": "SafeMate User Onboarding Lambda for Hedera wallet creation",
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.891.0",
+    "@aws-sdk/lib-dynamodb": "^3.891.0",
+    "@aws-sdk/client-kms": "^3.891.0",
+    "@hashgraph/sdk": "^2.73.1",
+    "long": "^5.2.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

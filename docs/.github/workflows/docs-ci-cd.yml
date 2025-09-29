@@ -1,0 +1,32 @@
+name: Documentation CI/CD
+
+on:
+  push:
+    branches: [ dev, preprod, main ]
+  pull_request:
+    branches: [ dev, preprod, main ]
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate Markdown
+      uses: DavidAnson/markdownlint-cli2-action@v15
+      with:
+        globs: '**/*.md'
+        
+    - name: Check for broken links
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        use-verbose-mode: 'yes'
+        config-file: '.markdown-link-check.json'
+        
+    - name: Generate documentation site
+      run: |
+        echo "Documentation validation completed successfully"
+        echo "All markdown files are valid and links are working"

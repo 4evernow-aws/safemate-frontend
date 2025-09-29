@@ -1,0 +1,19 @@
+{
+  "name": "@safemate/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities, types, and constants for SafeMate",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "lambda-layers/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "publish": "npm run publish --workspaces"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "@types/node": "^20.0.0"
+  }
+}

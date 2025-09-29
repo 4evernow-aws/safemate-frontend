@@ -1,0 +1,44 @@
+# Sensitive files
+*.pem
+*.key
+*.p12
+*.pfx
+
+# AWS credentials
+.aws/
+aws-credentials.json
+
+# Node modules
+node_modules/
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test response files (may contain sensitive data)
+response-*.json
+test-*.json
+
+# Old deployment packages (keep only latest)
+hedera-service-*-v[0-4][0-9].zip
+hedera-service-*-v[0-4][0-9]-*.zip

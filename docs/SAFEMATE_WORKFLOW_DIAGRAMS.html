@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeMate Workflow Diagrams v2.1</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .diagram-section {
+            margin-bottom: 50px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .diagram-header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .diagram-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 1.8em;
+        }
+        
+        .diagram-header p {
+            margin: 10px 0 0 0;
+            color: #666;
+        }
+        
+        .diagram-content {
+            padding: 30px;
+            background-color: white;
+            text-align: center;
+        }
+        
+        .mermaid {
+            background-color: white;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .export-buttons {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #4F46E5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-box h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .nav {
+            background-color: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .nav a {
+            color: #4F46E5;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav a:hover {
+            background-color: #4F46E5;
+            color: white;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SafeMate Workflow Diagrams</h1>
+            <p>Comprehensive system architecture and workflow documentation v2.1 - Updated after directory migration</p>
+        </div>
+        
+        <div class="nav">
+            <a href="#main-flow">🚀 Main Workflow</a>
+            <a href="#auth-sequence">🔐 Authentication</a>
+            <a href="#infrastructure">🏗️ Infrastructure</a>
+            <a href="#wallet-creation">🔄 Wallet Creation</a>
+            <a href="#component-flow">📱 Component Flow</a>
+            <a href="#security-flow">🔐 Security Flow</a>
+            <a href="#data-flow">📊 Data Flow</a>
+            <a href="#deployment-flow">🚀 Deployment Flow</a>
+            <a href="#modular-dashboard">🎛️ Modular Dashboard</a>
+        </div>
+        
+        <div class="content">
+            <!-- Main Workflow -->
+            <div id="main-flow" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>🚀 SafeMate Main Workflow</h2>
+                    <p>Complete user journey from landing page to dashboard with automatic wallet creation</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('main-flow', 'SafeMate_Main_Workflow_v2')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="main-flow">
+flowchart TD
+    %% Landing Page and Entry
+    A["Landing Page<br/>https://d19a5c2wn4mtdt.cloudfront.net"] --> B{"User Action"}
+    B -->|"Get Started"| C["ModernLogin Component<br/>/app route"]
+    B -->|"Learn More"| D["FAQ Page"]
+    B -->|"Navigation"| E["Other Public Pages<br/>Personal/Family/Business/etc"]
+    
+    %% Authentication Flow
+    C --> F{"Auth Mode"}
+    F -->|"New User"| G["Sign Up Form<br/>- First Name/Last Name<br/>- Username/Email<br/>- Password<br/>- Account Type Selection"]
+    F -->|"Existing User"| H["Sign In Form<br/>- Username (email address)<br/>- Password"]
+    
+    %% Sign Up Process
+    G -->|"Submit"| I["AWS Cognito User Pool<br/>ap-southeast-2_uLgMRpWlw"]
+    I -->|"User Created"| J["Email Verification<br/>Confirmation Code"]
+    J -->|"Code Verified"| K["Account Confirmed"]
+    K -->|"Auto Sign In"| L["Post-Confirmation Trigger"]
+    
+    %% Post-Confirmation Lambda
+    L --> M["Post-Confirmation Lambda<br/>default-safemate-post-confirmation-wallet-creator"]
+    M -->|"Async Invoke"| N["User Onboarding Lambda<br/>default-safemate-user-onboarding"]
+    
+    %% Sign In Process
+    H -->|"Valid Credentials"| O["Authentication Success"]
+    O --> P{"Wallet Check"}
+    P -->|"Has Wallet"| Q["Dashboard Access"]
+    P -->|"No Wallet"| R["OnboardingModal"]
+    
+    %% Onboarding Modal Process
+    R --> S["Wallet Creation Steps<br/>1. User Account Created<br/>2. Initializing Wallet<br/>3. Generating Keys<br/>4. Creating Hedera Account<br/>5. Completion"]
+    
+    %% Wallet Creation Backend
+    S --> N
+    N --> T["Generate ED25519 Keypair<br/>Using @hashgraph/sdk"]
+    T --> U["Encrypt Private Key<br/>AWS KMS Key"]
+    U --> V["Create Account Alias<br/>Hedera Auto-Creation"]
+    V --> W["Store Wallet Data"]
+    
+    %% DynamoDB Storage
+    W --> X["DynamoDB Tables<br/>- default-safemate-wallet-keys<br/>- default-safemate-wallet-metadata<br/>- default-safemate-user-secrets"]
+    X --> Y["Wallet Created Successfully"]
+    Y --> Z["Initialize Hedera Context"]
+    Z --> AA["Redirect to Dashboard"]
+    
+    %% Dashboard Access
+    AA --> BB["SafeMate Modular Dashboard<br/>- My Files (Gallery)<br/>- Upload<br/>- Shared Groups<br/>- Wallet Management<br/>- Profile"]
+    Q --> BB
+    
+    %% AWS Services Styling
+    classDef cognito fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:#FFFFFF
+    classDef lambda fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:#FFFFFF
+    classDef dynamo fill:#3F48CC,stroke:#232F3E,stroke-width:2px,color:#FFFFFF
+    classDef kms fill:#DD344C,stroke:#232F3E,stroke-width:2px,color:#FFFFFF
+    classDef frontend fill:#61DAFB,stroke:#232F3E,stroke-width:2px,color:#000000
+    classDef hedera fill:#00D4AA,stroke:#232F3E,stroke-width:2px,color:#FFFFFF
+    
+    %% Apply styles
+    class I cognito
+    class M,N lambda
+    class X dynamo
+    class U kms
+    class A,C,R,S,BB frontend
+    class T,V hedera
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Authentication Sequence Diagram -->
+            <div id="auth-sequence" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>🔐 Authentication Flow Sequence</h2>
+                    <p>Step-by-step authentication and wallet creation process with updated UI fields</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('auth-flow', 'SafeMate_Authentication_Flow_v2')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="auth-flow">
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant C as Cognito
+    participant L as Lambda
+    participant D as DynamoDB
+    participant K as KMS
+    participant H as Hedera
+    
+    %% Sign Up Flow
+    U->>F: Fill Sign Up Form (First/Last Name, Email, Password)
+    F->>C: signUp() with custom attributes (given_name, family_name)
+    C->>U: Send verification email
+    U->>F: Enter confirmation code
+    F->>C: confirmSignUp()
+    C->>L: Post-confirmation trigger
+    L->>L: Extract user data
+    L->>L: Async invoke user-onboarding
+    
+    %% Wallet Creation Flow
+    L->>L: Generate Hedera keypair
+    L->>K: Encrypt private key
+    K-->>L: Encrypted key
+    L->>H: Create account alias
+    L->>D: Store wallet keys
+    L->>D: Store wallet metadata
+    D-->>L: Success
+    L-->>F: Wallet created
+    F->>F: Initialize Hedera context
+    F->>U: Modular Dashboard access
+    
+    %% Sign In Flow
+    U->>F: Sign In (Email, Password)
+    F->>C: signIn()
+    C-->>F: Authentication tokens
+    F->>F: Check wallet status
+    F->>U: Dashboard or Onboarding
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Infrastructure Architecture -->
+            <div id="infrastructure" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>🏗️ AWS Infrastructure Architecture v2.0</h2>
+                    <p>Complete AWS services architecture with deployment automation and CORS management</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('infra-arch', 'SafeMate_Infrastructure_Architecture_v2')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="infra-arch">
+graph TB
+    %% User Layer
+    subgraph "User Interface"
+        USER[User Browser]
+        CDN[CloudFront CDN<br/>d19a5c2wn4mtdt.cloudfront.net]
+    end
+    
+    %% Frontend Layer
+    subgraph "Frontend Layer"
+        REACT[React App v2.0<br/>localhost:5173]
+        S3[S3 Static Hosting<br/>default-safemate-static-hosting]
+    end
+    
+    %% API Layer
+    subgraph "API Gateway Layer"
+        API1[Onboarding API<br/>nh9d5m1g4m]
+        API2[Wallet API<br/>mit7zoku5g]
+        API3[Hedera API<br/>yvzwg6rvp3]
+        API4[Token Vault API<br/>19k64fbdcg]
+        API5[Group API<br/>8641yebpjg]
+        API6[Directory API<br/>h5qustihb1]
+    end
+    
+    %% Compute Layer
+    subgraph "Lambda Functions"
+        L1[user-onboarding<br/>HEDERA_NETWORK=testnet]
+        L2[wallet-manager]
+        L3[hedera-service]
+        L4[token-vault]
+        L5[group-manager]
+        L6[directory-creator]
+        L7[post-confirmation]
+    end
+    
+    %% Authentication
+    subgraph "Authentication"
+        COGNITO[Cognito User Pool<br/>ap-southeast-2_uLgMRpWlw]
+        CLIENT[Cognito Client<br/>2fg1ckjn1hga2t07lnujpk488a]
+        IAM[IAM Roles & Policies]
+    end
+    
+    %% Storage Layer
+    subgraph "Data Storage"
+        DDB1[wallet-keys]
+        DDB2[wallet-metadata]
+        DDB3[user-secrets]
+        DDB4[groups]
+        DDB5[activities]
+        DDB6[hedera-folders]
+    end
+    
+    %% Security Layer
+    subgraph "Security"
+        KMS[KMS Encryption<br/>0df54397-e4ad-4d29-a2b7-edc474aa01d4]
+        VPC[VPC Security]
+    end
+    
+    %% Deployment Automation
+    subgraph "Deployment Automation"
+        SCRIPT1[deploy-all.ps1]
+        SCRIPT2[check-cors-all.ps1]
+        SCRIPT3[update-lambda-env.ps1]
+        SCRIPT4[deploy-static.ps1]
+    end
+    
+    %% External
+    subgraph "Blockchain"
+        HEDERA[Hedera Testnet]
+    end
+    
+    %% Connections
+    USER --> CDN
+    CDN --> S3
+    CDN --> REACT
+    REACT --> API1
+    REACT --> API2
+    REACT --> API3
+    REACT --> API4
+    REACT --> API5
+    REACT --> API6
+    
+    API1 --> L1
+    API2 --> L2
+    API3 --> L3
+    API4 --> L4
+    API5 --> L5
+    API6 --> L6
+    
+    COGNITO --> L7
+    L7 --> L1
+    
+    L1 --> DDB1
+    L1 --> DDB2
+    L1 --> DDB3
+    L2 --> DDB1
+    L2 --> DDB2
+    L5 --> DDB4
+    L5 --> DDB5
+    L3 --> DDB6
+    
+    L1 --> KMS
+    L2 --> KMS
+    L3 --> HEDERA
+    
+    REACT --> COGNITO
+    API1 --> COGNITO
+    API2 --> COGNITO
+    
+    %% Deployment Scripts
+    SCRIPT1 --> S3
+    SCRIPT1 --> CDN
+    SCRIPT2 --> API1
+    SCRIPT2 --> API2
+    SCRIPT2 --> API3
+    SCRIPT2 --> API4
+    SCRIPT2 --> API5
+    SCRIPT3 --> L1
+    SCRIPT3 --> L2
+    SCRIPT3 --> L3
+    SCRIPT3 --> L4
+    SCRIPT3 --> L5
+    SCRIPT4 --> S3
+    SCRIPT4 --> CDN
+    
+    %% Styling
+    classDef aws fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:#FFFFFF
+    classDef frontend fill:#61DAFB,stroke:#232F3E,stroke-width:2px,color:#000000
+    classDef blockchain fill:#00D4AA,stroke:#232F3E,stroke-width:2px,color:#FFFFFF
+    classDef deployment fill:#FF6B6B,stroke:#232F3E,stroke-width:2px,color:#FFFFFF
+    
+    class CDN,API1,API2,API3,API4,API5,API6,L1,L2,L3,L4,L5,L6,L7,COGNITO,CLIENT,IAM,DDB1,DDB2,DDB3,DDB4,DDB5,DDB6,KMS,VPC aws
+    class USER,REACT,S3 frontend
+    class HEDERA blockchain
+    class SCRIPT1,SCRIPT2,SCRIPT3,SCRIPT4 deployment
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Deployment Flow -->
+            <div id="deployment-flow" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>🚀 Deployment Automation Flow</h2>
+                    <p>Complete deployment process with automation scripts and CORS management</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('deployment-process', 'SafeMate_Deployment_Flow')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="deployment-process">
+flowchart TD
+    %% Pre-deployment
+    START[Start Deployment] --> CHECK[Pre-deployment Checks]
+    CHECK --> ENV[Environment Validation]
+    ENV --> BUILD[Build Frontend]
+    
+    %% Build Process
+    BUILD --> NPM[npm run build]
+    NPM --> DIST[Create dist/ folder]
+    DIST --> S3[Deploy to S3]
+    
+    %% S3 Deployment
+    S3 --> SYNC[aws s3 sync dist/ s3://bucket]
+    SYNC --> CLOUDFRONT[Invalidate CloudFront]
+    CLOUDFRONT --> INVALIDATE[Create invalidation]
+    INVALIDATE --> WAIT[Wait for completion]
+    
+    %% CORS Management
+    WAIT --> CORS[Check CORS Configuration]
+    CORS --> CORS_CHECK[check-cors-all.ps1]
+    CORS_CHECK --> CORS_FIX{Fix Needed?}
+    CORS_FIX -->|Yes| FIX_CORS[Update CORS Headers]
+    CORS_FIX -->|No| LAMBDA_CHECK[Check Lambda Environment]
+    FIX_CORS --> DEPLOY_API[Deploy API Gateway]
+    DEPLOY_API --> LAMBDA_CHECK
+    
+    %% Lambda Environment
+    LAMBDA_CHECK --> LAMBDA_SCRIPT[update-lambda-env.ps1]
+    LAMBDA_SCRIPT --> LAMBDA_UPDATE{Update Needed?}
+    LAMBDA_UPDATE -->|Yes| UPDATE_LAMBDA[Update Environment Variables]
+    LAMBDA_UPDATE -->|No| VERIFY[Final Verification]
+    UPDATE_LAMBDA --> VERIFY
+    
+    %% Verification
+    VERIFY --> TEST_URL[Test CloudFront URL]
+    TEST_URL --> SUCCESS[Deployment Complete]
+    
+    %% Error Handling
+    BUILD -->|Error| BUILD_ERROR[Build Failed]
+    S3 -->|Error| S3_ERROR[S3 Deployment Failed]
+    CLOUDFRONT -->|Error| CF_ERROR[CloudFront Error]
+    CORS_FIX -->|Error| CORS_ERROR[CORS Fix Failed]
+    LAMBDA_UPDATE -->|Error| LAMBDA_ERROR[Lambda Update Failed]
+    
+    %% Styling
+    classDef process fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#FFFFFF
+    classDef decision fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#FFFFFF
+    classDef error fill:#F44336,stroke:#D32F2F,stroke-width:2px,color:#FFFFFF
+    classDef aws fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:#FFFFFF
+    
+    class CHECK,ENV,BUILD,NPM,DIST,S3,SYNC,CLOUDFRONT,INVALIDATE,WAIT,CORS,CORS_CHECK,FIX_CORS,DEPLOY_API,LAMBDA_CHECK,LAMBDA_SCRIPT,UPDATE_LAMBDA,VERIFY,TEST_URL,SUCCESS process
+    class CORS_FIX,LAMBDA_UPDATE decision
+    class BUILD_ERROR,S3_ERROR,CF_ERROR,CORS_ERROR,LAMBDA_ERROR error
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modular Dashboard System -->
+            <div id="modular-dashboard" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>🎛️ Modular Dashboard System</h2>
+                    <p>Widget-based dashboard architecture with dynamic layout and account-based permissions</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('modular-dash', 'SafeMate_Modular_Dashboard')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="modular-dash">
+graph TD
+    %% Dashboard Container
+    subgraph "SafeMate Dashboard Container"
+        DASH[Dashboard Container<br/>Responsive Grid Layout]
+        
+        %% Widget System
+        subgraph "Widget System"
+            WIDGET_MGR[Widget Manager]
+            LAYOUT[Layout Engine]
+            PERMISSIONS[Permission System]
+        end
+        
+        %% Core Widgets
+        subgraph "Core Widgets"
+            FILES[My Files Widget<br/>Gallery View]
+            UPLOAD[Upload Widget<br/>File Upload]
+            GROUPS[Shared Groups Widget<br/>Collaboration]
+            WALLET[Wallet Management Widget<br/>Hedera Operations]
+            PROFILE[Profile Widget<br/>User Settings]
+        end
+        
+        %% Account Type Widgets
+        subgraph "Account Type Widgets"
+            PERSONAL[Personal Widgets]
+            FAMILY[Family Widgets]
+            BUSINESS[Business Widgets]
+            COMMUNITY[Community Widgets]
+            SPORTING[Sporting Team Widgets]
+            CULTURAL[Cultural Widgets]
+        end
+        
+        %% Development Tools
+        subgraph "Development Tools"
+            DEBUG[Debug Panel]
+            WIDGET_DEV[WidgetDevTools]
+            ERROR_BOUNDARY[Error Boundaries]
+        end
+    end
+    
+    %% Data Flow
+    subgraph "Data Sources"
+        HEDERA_CTX[Hedera Context]
+        USER_CTX[User Context]
+        THEME_CTX[Theme Context]
+    end
+    
+    %% Connections
+    DASH --> WIDGET_MGR
+    WIDGET_MGR --> LAYOUT
+    WIDGET_MGR --> PERMISSIONS
+    
+    LAYOUT --> FILES
+    LAYOUT --> UPLOAD
+    LAYOUT --> GROUPS
+    LAYOUT --> WALLET
+    LAYOUT --> PROFILE
+    
+    PERMISSIONS --> PERSONAL
+    PERMISSIONS --> FAMILY
+    PERMISSIONS --> BUSINESS
+    PERMISSIONS --> COMMUNITY
+    PERMISSIONS --> SPORTING
+    PERMISSIONS --> CULTURAL
+    
+    HEDERA_CTX --> FILES
+    HEDERA_CTX --> WALLET
+    USER_CTX --> PROFILE
+    USER_CTX --> PERMISSIONS
+    THEME_CTX --> DASH
+    
+    DEBUG --> WIDGET_MGR
+    WIDGET_DEV --> WIDGET_MGR
+    ERROR_BOUNDARY --> DASH
+    
+    %% Styling
+    classDef container fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#000000
+    classDef widget fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#FFFFFF
+    classDef system fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#FFFFFF
+    classDef context fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#FFFFFF
+    classDef tools fill:#607D8B,stroke:#455A64,stroke-width:2px,color:#FFFFFF
+    
+    class DASH container
+    class FILES,UPLOAD,GROUPS,WALLET,PROFILE,PERSONAL,FAMILY,BUSINESS,COMMUNITY,SPORTING,CULTURAL widget
+    class WIDGET_MGR,LAYOUT,PERMISSIONS system
+    class HEDERA_CTX,USER_CTX,THEME_CTX context
+    class DEBUG,WIDGET_DEV,ERROR_BOUNDARY tools
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Wallet Creation Process -->
+            <div id="wallet-creation" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>🔄 Wallet Creation Process Detail</h2>
+                    <p>Detailed wallet creation workflow with key generation and storage</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('wallet-process', 'SafeMate_Wallet_Creation_Process_v2')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="wallet-process">
+flowchart TD
+    %% Start
+    START[User Confirmed Account] --> CHECK{Check Existing Wallet}
+    
+    %% Existing Wallet Path
+    CHECK -->|Has Wallet| EXISTING[Return Existing Wallet]
+    EXISTING --> DASHBOARD[Proceed to Dashboard]
+    
+    %% New Wallet Path
+    CHECK -->|No Wallet| GENERATE[Generate ED25519 Keypair]
+    
+    %% Key Generation Process
+    GENERATE --> PRIVATE[Private Key Generated]
+    GENERATE --> PUBLIC[Public Key Generated]
+    GENERATE --> RAW[Raw Public Key Generated]
+    
+    %% Encryption Process
+    PRIVATE --> ENCRYPT[Encrypt Private Key with KMS]
+    ENCRYPT --> ENCRYPTED[Encrypted Private Key]
+    
+    %% Account Creation
+    RAW --> ALIAS[Create Hedera Account Alias]
+    ALIAS --> ACCOUNT[Account Alias Created]
+    
+    %% Storage Process
+    ENCRYPTED --> STORE1[Store in wallet-keys table]
+    PUBLIC --> STORE1
+    RAW --> STORE1
+    ACCOUNT --> STORE1
+    
+    ACCOUNT --> STORE2[Store in wallet-metadata table]
+    PUBLIC --> STORE2
+    
+    %% User Secrets Storage
+    ENCRYPTED --> STORE3[Store in user-secrets table]
+    
+    %% Completion
+    STORE1 --> SUCCESS[Wallet Created Successfully]
+    STORE2 --> SUCCESS
+    STORE3 --> SUCCESS
+    SUCCESS --> FRONTEND[Return to Frontend]
+    FRONTEND --> INIT[Initialize Hedera Context]
+    INIT --> DASHBOARD
+    
+    %% Styling
+    classDef process fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#FFFFFF
+    classDef storage fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:#FFFFFF
+    classDef security fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#FFFFFF
+    classDef decision fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#FFFFFF
+    
+    class GENERATE,PRIVATE,PUBLIC,RAW,ALIAS,ACCOUNT process
+    class STORE1,STORE2,STORE3,EXISTING storage
+    class ENCRYPT,ENCRYPTED security
+    class CHECK decision
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Component Flow -->
+            <div id="component-flow" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>📱 Frontend Component Flow v2.0</h2>
+                    <p>React component state transitions with modular dashboard and updated UI</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('component-states', 'SafeMate_Component_Flow_v2')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="component-states">
+stateDiagram-v2
+    [*] --> LandingPage
+    
+    LandingPage --> ModernLogin : Get Started
+    LandingPage --> FAQ : Learn More
+    LandingPage --> PublicPages : Navigation
+    
+    ModernLogin --> SignInForm : Existing User
+    ModernLogin --> SignUpForm : New User
+    
+    SignUpForm --> ConfirmationForm : Account Created
+    ConfirmationForm --> ConfirmedState : Code Verified
+    ConfirmedState --> OnboardingModal : Auto Login
+    
+    SignInForm --> WalletCheck : Authenticated
+    WalletCheck --> ModularDashboard : Has Wallet
+    WalletCheck --> OnboardingModal : No Wallet
+    
+    OnboardingModal --> WalletCreation : Start Process
+    WalletCreation --> WalletSuccess : Creation Complete
+    WalletSuccess --> ModularDashboard : Initialize Context
+    
+    ModularDashboard --> GalleryWidget : My Files
+    ModularDashboard --> UploadWidget : Upload
+    ModularDashboard --> GroupsWidget : Shared Groups
+    ModularDashboard --> WalletWidget : Wallet Management
+    ModularDashboard --> ProfileWidget : Profile
+    
+    state ModularDashboard {
+        [*] --> WidgetManager
+        WidgetManager --> LayoutEngine
+        LayoutEngine --> PermissionCheck
+        PermissionCheck --> WidgetRendering
+        WidgetRendering --> [*]
+        
+        state WidgetRendering {
+            [*] --> CoreWidgets
+            CoreWidgets --> AccountTypeWidgets
+            AccountTypeWidgets --> DevelopmentTools
+            DevelopmentTools --> [*]
+        }
+    }
+    
+    state OnboardingModal {
+        [*] --> AccountCreated
+        AccountCreated --> InitializingWallet
+        InitializingWallet --> GeneratingKeys
+        GeneratingKeys --> CreatingAccount
+        CreatingAccount --> WalletComplete
+        WalletComplete --> [*]
+    }
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Flow -->
+            <div id="security-flow" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>🔐 Security Flow Diagram v2.0</h2>
+                    <p>Authentication, authorization, and data encryption layers with deployment automation</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('security-arch', 'SafeMate_Security_Flow_v2')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="security-arch">
+graph TD
+    %% User Authentication
+    subgraph "Authentication Layer"
+        USER[User Credentials<br/>First/Last Name, Email, Password]
+        COGNITO[AWS Cognito<br/>ap-southeast-2_uLgMRpWlw]
+        JWT[JWT Token]
+        MFA[MFA Support]
+    end
+    
+    %% API Security
+    subgraph "API Security Layer"
+        GATEWAY[API Gateway<br/>6 REST APIs]
+        CORS[CORS Validation<br/>check-cors-all.ps1]
+        AUTH[Token Validation]
+        LAMBDA[Lambda Authorizer]
+    end
+    
+    %% Data Security
+    subgraph "Data Security Layer"
+        KMS[AWS KMS<br/>0df54397-e4ad-4d29-a2b7-edc474aa01d4]
+        ENCRYPT[Field Encryption]
+        DYNAMODB[DynamoDB Encryption at Rest<br/>14 Tables]
+    end
+    
+    %% Network Security
+    subgraph "Network Security"
+        TLS[TLS/HTTPS]
+        VPC[VPC Isolation]
+        IAM[IAM Roles]
+        CLOUDFRONT[CloudFront Security]
+    end
+    
+    %% Deployment Security
+    subgraph "Deployment Security"
+        SCRIPT_AUTH[Script Authentication]
+        ENV_VALIDATION[Environment Validation]
+        CORS_MANAGEMENT[CORS Management]
+        LAMBDA_ENV[Lambda Environment Security]
+    end
+    
+    %% Flow
+    USER --> COGNITO
+    COGNITO --> JWT
+    COGNITO --> MFA
+    JWT --> GATEWAY
+    GATEWAY --> CORS
+    CORS --> AUTH
+    AUTH --> LAMBDA
+    LAMBDA --> KMS
+    KMS --> ENCRYPT
+    ENCRYPT --> DYNAMODB
+    
+    %% Deployment Security Flow
+    SCRIPT_AUTH --> ENV_VALIDATION
+    ENV_VALIDATION --> CORS_MANAGEMENT
+    CORS_MANAGEMENT --> LAMBDA_ENV
+    LAMBDA_ENV --> GATEWAY
+    
+    %% Network Security Flow
+    TLS --> GATEWAY
+    VPC --> LAMBDA
+    IAM --> KMS
+    CLOUDFRONT --> TLS
+    
+    %% Security Styling
+    classDef security fill:#F44336,stroke:#D32F2F,stroke-width:2px,color:#FFFFFF
+    classDef encryption fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#FFFFFF
+    classDef network fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#FFFFFF
+    classDef deployment fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#FFFFFF
+    
+    class USER,COGNITO,JWT,MFA,GATEWAY,CORS,AUTH,LAMBDA security
+    class KMS,ENCRYPT,DYNAMODB encryption
+    class TLS,VPC,IAM,CLOUDFRONT network
+    class SCRIPT_AUTH,ENV_VALIDATION,CORS_MANAGEMENT,LAMBDA_ENV deployment
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Flow -->
+            <div id="data-flow" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>📊 Data Flow Architecture v2.0</h2>
+                    <p>How data flows through the application layers with deployment automation</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('data-arch', 'SafeMate_Data_Flow_v2')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="data-arch">
+graph LR
+    %% Frontend Data Flow
+    subgraph "Frontend Data Layer"
+        REACT[React Components v2.0]
+        CONTEXT[React Contexts<br/>Hedera/User/Theme]
+        SERVICES[Service Classes<br/>hederaApiService/secureWalletService]
+        WIDGETS[Modular Widgets]
+    end
+    
+    %% API Data Flow
+    subgraph "API Data Layer"
+        REST[REST APIs<br/>6 API Gateways]
+        GATEWAY[API Gateway<br/>CORS Managed]
+        LAMBDA[Lambda Functions<br/>7 Functions]
+    end
+    
+    %% Storage Data Flow
+    subgraph "Storage Data Layer"
+        DYNAMO[DynamoDB Tables<br/>14 Tables]
+        KMS[KMS Encryption<br/>Field-level Security]
+        BACKUP[Point-in-Time Recovery]
+    end
+    
+    %% Deployment Data Flow
+    subgraph "Deployment Data Layer"
+        SCRIPTS[Deployment Scripts<br/>4 PowerShell Scripts]
+        ENV_CONFIG[Environment Configuration]
+        CORS_CONFIG[CORS Configuration]
+        LAMBDA_CONFIG[Lambda Configuration]
+    end
+    
+    %% External Data Flow
+    subgraph "External Data Layer"
+        HEDERA[Hedera Network<br/>Testnet]
+        HASHSCAN[HashScan Explorer]
+        MIRROR[Mirror Nodes]
+    end
+    
+    %% Data Flow Connections
+    REACT --> CONTEXT
+    CONTEXT --> SERVICES
+    SERVICES --> WIDGETS
+    WIDGETS --> REST
+    REST --> GATEWAY
+    GATEWAY --> LAMBDA
+    LAMBDA --> DYNAMO
+    LAMBDA --> KMS
+    LAMBDA --> HEDERA
+    HEDERA --> MIRROR
+    HEDERA --> HASHSCAN
+    DYNAMO --> BACKUP
+    
+    %% Deployment Data Flow
+    SCRIPTS --> ENV_CONFIG
+    ENV_CONFIG --> CORS_CONFIG
+    CORS_CONFIG --> LAMBDA_CONFIG
+    LAMBDA_CONFIG --> GATEWAY
+    
+    %% Data Flow Styling
+    classDef frontend fill:#61DAFB,stroke:#0277BD,stroke-width:2px,color:#000000
+    classDef api fill:#FF9900,stroke:#E65100,stroke-width:2px,color:#FFFFFF
+    classDef storage fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#FFFFFF
+    classDef deployment fill:#FF6B6B,stroke:#E53E3E,stroke-width:2px,color:#FFFFFF
+    classDef external fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#FFFFFF
+    
+    class REACT,CONTEXT,SERVICES,WIDGETS frontend
+    class REST,GATEWAY,LAMBDA api
+    class DYNAMO,KMS,BACKUP storage
+    class SCRIPTS,ENV_CONFIG,CORS_CONFIG,LAMBDA_CONFIG deployment
+    class HEDERA,HASHSCAN,MIRROR external
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h4>📝 Additional Export Options</h4>
+                <p><strong>For Visio:</strong> Export as SVG, then import into Visio</p>
+                <p><strong>For PowerPoint:</strong> Save as PNG/JPG and insert into slides</p>
+                <p><strong>For Documentation:</strong> Copy the HTML source and embed in wikis</p>
+                <p><strong>For Editing:</strong> Copy Mermaid source to <a href="https://mermaid.live/" target="_blank">mermaid.live</a></p>
+                <p><strong>Version:</strong> SafeMate Workflow Diagrams v2.0 - Updated with modular dashboard, deployment automation, and latest features</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'cardinal'
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true
+            },
+            gantt: {
+                useMaxWidth: true
+            }
+        });
+        
+        // Export diagram function
+        function exportDiagram(diagramId, filename) {
+            try {
+                const svg = document.querySelector(`#${diagramId} svg`);
+                if (!svg) {
+                    alert('Diagram not found. Please wait for the diagram to load.');
+                    return;
+                }
+                
+                // Create a canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Get SVG dimensions
+                const svgRect = svg.getBoundingClientRect();
+                canvas.width = svgRect.width || 800;
+                canvas.height = svgRect.height || 600;
+                
+                // Create an image from SVG
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+                const url = URL.createObjectURL(svgBlob);
+                
+                const img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    
+                    // Download the image
+                    canvas.toBlob(function(blob) {
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.download = filename + '.png';
+                        a.href = downloadUrl;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(downloadUrl);
+                    });
+                };
+                img.src = url;
+                
+            } catch (error) {
+                console.error('Export failed:', error);
+                alert('Export failed. Please try right-clicking on the diagram and selecting "Save image as..."');
+            }
+        }
+        
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

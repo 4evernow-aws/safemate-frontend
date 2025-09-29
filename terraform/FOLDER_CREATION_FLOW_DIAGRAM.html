@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeMate Hedera Folder Creation Flow Diagram</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .diagram {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-x: auto;
+            white-space: pre;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .status-operational {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .tech-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .tech-card h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .tech-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .tech-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .tech-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .endpoint-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .endpoint-list code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .diagram {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SafeMate Hedera Folder Creation Flow Diagram</h1>
+            <p>Complete visualization of the folder creation process in the SafeMate application</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2><span class="emoji">🔄</span> Complete Folder Creation Flow</h2>
+                <div class="diagram">┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   API Gateway   │    │   Lambda        │
+│   (React App)   │    │   (Hedera API)  │    │   (Hedera       │
+│                 │    │                 │    │    Service)     │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ 1. Create Folder      │                       │
+         │    Request            │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 2. Route to Lambda    │                       │
+         │    Function           │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 3. Process Request    │                       │
+         │◄──────────────────────┤                       │
+         │                       │                       │
+         │ 4. Folder Created     │                       │
+         │    Response           │                       │
+         │◄──────────────────────┤                       │</div>
+            </div>
+            
+            <div class="section">
+                <h2><span class="emoji">🏗️</span> Backend Processing Flow</h2>
+                <div class="diagram">┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   User          │    │   DynamoDB      │    │   Hedera        │
+│   Authentication│    │   (Wallet       │    │   Blockchain    │
+│                 │    │    Metadata)    │    │   (Testnet)     │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ 1. Extract User ID    │                       │
+         │    from JWT Token     │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 2. Get User Wallet    │                       │
+         │    Information        │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 3. Initialize Hedera  │                       │
+         │    Client             │                       │
+         ├──────────────────────────────────────────────►│
+         │                       │                       │
+         │ 4. Create Folder      │                       │
+         │    Token              │                       │
+         ├──────────────────────────────────────────────►│
+         │                       │                       │
+         │ 5. Store Metadata     │                       │
+         │    on Blockchain      │                       │
+         ├──────────────────────────────────────────────►│</div>
+            </div>
+            
+            <div class="section">
+                <h2><span class="emoji">🌐</span> API Gateway Endpoints</h2>
+                <div class="diagram">┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Folders       │    │   Files         │    │   CORS          │
+│   Endpoints     │    │   Endpoints     │    │   Support       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ GET /folders          │ GET /files            │ OPTIONS /folders
+         │ POST /folders         │ POST /files/upload    │ OPTIONS /files
+         │ DELETE /folders/{id}  │ GET /files/{id}       │ OPTIONS /folders/{id}
+         │ GET /folders/{id}     │ PUT /files/{id}       │ OPTIONS /files/{id}
+         │                       │ DELETE /files/{id}    │
+         │                       │                       │
+         │ uvk4xxwjyg            │ uvk4xxwjyg            │ uvk4xxwjyg
+         │ .execute-api          │ .execute-api          │ .execute-api
+         │ .ap-southeast-2       │ .ap-southeast-2       │ .ap-southeast-2
+         │ .amazonaws.com        │ .amazonaws.com        │ .amazonaws.com
+         │ /preprod              │ /preprod              │ /preprod</div>
+                
+                <div class="endpoint-list">
+                    <h3>Available Endpoints:</h3>
+                    <ul>
+                        <li><code>GET /folders</code> - List user's folders</li>
+                        <li><code>POST /folders</code> - Create new folder</li>
+                        <li><code>DELETE /folders/{id}</code> - Delete folder</li>
+                        <li><code>GET /folders/{id}</code> - List files in folder</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2><span class="emoji">🔐</span> Security Flow</h2>
+                <div class="diagram">┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Cognito       │    │   JWT Token     │    │   API Gateway   │
+│   User Pool     │    │   Validation    │    │   Authorization │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ 1. User Login         │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 2. Generate JWT       │                       │
+         │◄──────────────────────┤                       │
+         │                       │                       │
+         │ 3. API Request        │                       │
+         │    with JWT           │                       │
+         ├──────────────────────────────────────────────►│
+         │                       │                       │
+         │ 4. Token Validated    │                       │
+         │◄──────────────────────────────────────────────┤</div>
+            </div>
+            
+            <div class="section">
+                <h2><span class="emoji">🗄️</span> Database Schema</h2>
+                <div class="diagram">┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Hedera        │    │   Wallet        │    │   Wallet        │
+│   Folders       │    │   Metadata      │    │   Keys          │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ tokenId (PK)          │ userId (PK)           │ userId (PK)
+         │ userId                │ hedera_account_id     │ encrypted_private_key
+         │ folderName            │ public_key            │ key_id
+         │ parentFolderId        │ created_at            │ created_at
+         │ tokenType             │ status                │
+         │ network               │                       │
+         │ transactionId         │                       │
+         │ createdAt             │                       │
+         │ storageType           │                       │
+         │ blockchainVerified    │                       │
+         │                       │                       │
+         │ preprod-safemate-     │ preprod-safemate-     │ preprod-safemate-
+         │ hedera-folders        │ wallet-metadata       │ wallet-keys</div>
+            </div>
+            
+            <div class="section">
+                <h2><span class="emoji">🔄</span> Folder Creation Process</h2>
+                <div class="diagram">┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Create        │    │   Sign          │    │   Execute       │
+│   Token         │    │   Transaction   │    │   Transaction   │
+│   Transaction   │    │                 │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ 1. TokenCreate        │                       │
+         │    Transaction        │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 2. Set Token          │                       │
+         │    Properties         │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 3. Sign with User's   │                       │
+         │    Private Key        │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 4. Execute on         │                       │
+         │    Hedera Testnet     │                       │
+         ├──────────────────────────────────────────────►│
+         │                       │                       │
+         │ 5. Get Transaction    │                       │
+         │    Receipt            │                       │
+         │◄──────────────────────────────────────────────┤</div>
+            </div>
+            
+            <div class="section">
+                <h2><span class="emoji">📊</span> Metadata Storage</h2>
+                <div class="diagram">┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   NFT           │    │   DynamoDB      │    │   Blockchain    │
+│   Metadata      │    │   Reference     │    │   Verification  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ Comprehensive         │ Minimal Reference     │ Immutable
+         │ Folder Metadata       │                       │ Storage
+         │                       │                       │
+         │ - type: folder        │ - tokenId             │ - Token ID
+         │ - name                │ - userId              │ - Transaction ID
+         │ - userId              │ - folderName          │ - Metadata Hash
+         │ - parentFolderId      │ - parentFolderId      │ - Ownership
+         │ - createdAt           │ - tokenType           │ - Verification
+         │ - path                │ - network             │
+         │ - permissions         │ - transactionId       │
+         │ - owner               │ - createdAt           │
+         │ - network             │ - storageType         │
+         │ - version             │ - blockchainVerified  │
+         │ - blockchain          │                       │
+         │   properties          │                       │
+         │                       │                       │
+         │ Stored in NFT         │ Stored in DynamoDB    │ Stored on
+         │ Metadata              │ Table                 │ Hedera
+         │                       │                       │ Blockchain</div>
+            </div>
+            
+            <div class="section">
+                <h2><span class="emoji">🌍</span> Hedera Network Integration</h2>
+                <div class="diagram">┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   User          │    │   Hedera        │    │   Folder        │
+│   Account       │    │   Testnet       │    │   Token         │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ 0.0.6879262           │ 4 Testnet Nodes       │ 0.0.1234567
+         │ 200.1 HBAR            │                       │ NON_FUNGIBLE_UNIQUE
+         │                       │                       │
+         │ 1. Initialize         │                       │
+         │    Client             │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 2. Create Folder      │                       │
+         │    Token              │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 3. Token Created      │                       │
+         │◄──────────────────────┤                       │
+         │                       │                       │
+         │ 4. Store Metadata     │                       │
+         │    in NFT             │                       │
+         ├──────────────────────►│                       │
+         │                       │                       │
+         │ 5. Metadata Stored    │                       │
+         │◄──────────────────────┤                       │</div>
+            </div>
+            
+            <div class="section">
+                <h2><span class="emoji">📊</span> Current Status</h2>
+                <div class="diagram">┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   ✅ Frontend   │    │   ✅ Backend    │    │   ✅ Blockchain │
+│   Operational   │    │   Operational   │    │   Operational   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ CloudFront CDN        │ Lambda Functions      │ Hedera Testnet
+         │ React Application     │ API Gateways          │ Real NFT Tokens
+         │ HTTPS Enabled         │ DynamoDB Tables       │ Live Network
+         │ CORS Configured       │ KMS Encryption        │ 99.9% Uptime
+         │                       │                       │
+         │ https://d2xl0r3mv20sy5│ uvk4xxwjyg            │ 0.0.6879262
+         │ .cloudfront.net       │ .execute-api          │ 200.1 HBAR
+         │                       │ .ap-southeast-2       │ Active
+         │                       │ .amazonaws.com        │
+         │                       │ /preprod              │</div>
+                
+                <div style="margin-top: 20px;">
+                    <span class="status-badge status-operational">✅ Frontend Operational</span>
+                    <span class="status-badge status-operational">✅ Backend Operational</span>
+                    <span class="status-badge status-operational">✅ Blockchain Operational</span>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2><span class="emoji">🔧</span> Technical Stack</h2>
+                <div class="tech-stack">
+                    <div class="tech-card">
+                        <h3>Frontend Technologies</h3>
+                        <ul class="tech-list">
+                            <li>React 18</li>
+                            <li>TypeScript</li>
+                            <li>AWS Amplify</li>
+                            <li>Material-UI</li>
+                            <li>Modern UI/UX</li>
+                            <li>Responsive Design</li>
+                            <li>PWA Support</li>
+                        </ul>
+                    </div>
+                    <div class="tech-card">
+                        <h3>Backend Technologies</h3>
+                        <ul class="tech-list">
+                            <li>Node.js 18.x</li>
+                            <li>@hashgraph/sdk</li>
+                            <li>AWS SDK v3</li>
+                            <li>KMS Encryption</li>
+                            <li>Blockchain Integration</li>
+                            <li>Real-time Operations</li>
+                            <li>Secure Key Management</li>
+                        </ul>
+                    </div>
+                    <div class="tech-card">
+                        <h3>Infrastructure Technologies</h3>
+                        <ul class="tech-list">
+                            <li>AWS Lambda</li>
+                            <li>API Gateway</li>
+                            <li>DynamoDB</li>
+                            <li>CloudWatch</li>
+                            <li>Serverless</li>
+                            <li>Auto-scaling</li>
+                            <li>High Availability</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>This diagram represents the complete flow of the SafeMate Hedera folder creation process as of September 22, 2025.</p>
+        </div>
+    </div>
+</body>
+</html>
+
