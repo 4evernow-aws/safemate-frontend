@@ -1,5 +1,21 @@
 {
+  "name": "safemate-hedera-service",
+  "version": "48.0.0",
+  "description": "SafeMate v2 Hedera blockchain service for folder management with NON_FUNGIBLE_UNIQUE tokens",
+  "main": "index.js",
   "dependencies": {
-    "@hashgraph/sdk": "^2.73.2"
-  }
+    "@hashgraph/sdk": "^2.73.2",
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "@aws-sdk/client-kms": "^3.0.0"
+  },
+  "keywords": [
+    "hedera",
+    "nft",
+    "folder-management",
+    "blockchain",
+    "safemate"
+  ],
+  "author": "SafeMate Team",
+  "license": "MIT"
 }

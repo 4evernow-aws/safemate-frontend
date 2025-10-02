@@ -1,0 +1,23 @@
+{
+  "name": "safemate-hedera-service",
+  "version": "48.0.0",
+  "description": "SafeMate v2 Hedera blockchain service for folder management",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "zip -r safemate-hedera-service.zip . && aws lambda update-function-code --function-name preprod-safemate-hedera-service --zip-file fileb://safemate-hedera-service.zip"
+  },
+  "dependencies": {
+    "@hashgraph/sdk": "^2.19.0",
+    "aws-sdk": "^2.1490.0"
+  },
+  "keywords": [
+    "hedera",
+    "nft",
+    "folder-management",
+    "blockchain",
+    "safemate"
+  ],
+  "author": "SafeMate Team",
+  "license": "MIT"
+}
