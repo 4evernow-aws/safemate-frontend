@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeMate Workflow Diagrams v2.1</title>
+    <title>SafeMate Workflow Diagrams v2.2 - V48.1 Enhanced Architecture</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <style>
         body {
@@ -152,11 +152,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>SafeMate Workflow Diagrams</h1>
-            <p>Comprehensive system architecture and workflow documentation v2.1 - Updated after directory migration</p>
+            <h1>SafeMate Workflow Diagrams v2.2</h1>
+            <p>V48.1 Enhanced Architecture - Blockchain-first with DynamoDB caching</p>
         </div>
         
         <div class="nav">
+            <a href="#v48-architecture">🏗️ V48.1 Architecture</a>
             <a href="#main-flow">🚀 Main Workflow</a>
             <a href="#auth-sequence">🔐 Authentication</a>
             <a href="#infrastructure">🏗️ Infrastructure</a>
@@ -169,6 +170,63 @@
         </div>
         
         <div class="content">
+            <!-- V48.1 Enhanced Architecture -->
+            <div id="v48-architecture" class="diagram-section">
+                <div class="diagram-header">
+                    <h2>🏗️ V48.1 Enhanced Architecture</h2>
+                    <p>Blockchain-first folder management with DynamoDB caching for performance</p>
+                </div>
+                <div class="diagram-content">
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportDiagram('v48-architecture', 'SafeMate_V48_Architecture')">💾 Save as Image</button>
+                    </div>
+                    <div class="mermaid" id="v48-architecture">
+flowchart TD
+    %% Frontend Layer
+    A["Frontend<br/>React App"] --> B["API Gateway<br/>/preprod/*"]
+    
+    %% API Gateway Layer
+    B --> C["Lambda Function<br/>V48.1 Enhanced"]
+    
+    %% Lambda Processing
+    C --> D{"Folder Request<br/>Type?"}
+    D -->|"List Folders"| E["listUserFolders()"]
+    D -->|"Create Folder"| F["createFolder()"]
+    D -->|"Delete Folder"| G["deleteFolder()"]
+    
+    %% V48.1 Enhanced List Flow
+    E --> H["Try DynamoDB<br/>Cache First"]
+    H --> I{"Cache Hit?"}
+    I -->|"Yes"| J["Return Cached<br/>Data (Fast)"]
+    I -->|"No"| K["Query Hedera<br/>Blockchain"]
+    K --> L["Cache Result<br/>in DynamoDB"]
+    L --> M["Return Fresh<br/>Data"]
+    
+    %% Folder Creation Flow
+    F --> N["Create NFT on<br/>Hedera Blockchain"]
+    N --> O["Store Metadata<br/>in DynamoDB"]
+    O --> P["Return Success"]
+    
+    %% Data Sources
+    Q["DynamoDB<br/>preprod-safemate-hedera-folders<br/>📊 Cache Layer"] -.-> H
+    R["Hedera Testnet<br/>NFT Collection Tokens<br/>🔗 Source of Truth"] -.-> K
+    
+    %% Styling
+    classDef frontend fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef api fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef lambda fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef cache fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef blockchain fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    
+    class A frontend
+    class B api
+    class C,D,E,F,G,H,I,J,K,L,M,N,O,P lambda
+    class Q cache
+    class R blockchain
+                    </div>
+                </div>
+            </div>
+            
             <!-- Main Workflow -->
             <div id="main-flow" class="diagram-section">
                 <div class="diagram-header">
