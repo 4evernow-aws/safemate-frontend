@@ -142,13 +142,18 @@ export default function OnboardingModal({ open, onComplete, onCancel, accountTyp
       if (walletResult.success && walletResult.wallet) {
         console.log('✅ Wallet created/retrieved successfully:', walletResult.wallet);
         
-        // Extract wallet details
+        // Extract wallet details - check both top level and wallet object
         const details: WalletDetails = {
-          accountId: walletResult.wallet.accountId || 'N/A',
-          publicKey: walletResult.wallet.publicKey || 'N/A',
-          balance: String(walletResult.wallet.balance || '0'),
+          accountId: walletResult.accountId || walletResult.wallet?.accountId || 'N/A',
+          publicKey: walletResult.publicKey || walletResult.wallet?.publicKey || 'N/A',
+          balance: String(walletResult.wallet?.balance || '0'),
           network: 'Hedera Testnet'
         };
+        
+        console.log('🔍 OnboardingModal: Full wallet result:', walletResult);
+        console.log('🔍 OnboardingModal: Wallet object:', walletResult.wallet);
+        console.log('🔍 OnboardingModal: Top level accountId:', walletResult.accountId);
+        console.log('🔍 OnboardingModal: Top level publicKey:', walletResult.publicKey);
         
         console.log('🔍 OnboardingModal: Wallet details extracted:', details);
         setWalletDetails(details);

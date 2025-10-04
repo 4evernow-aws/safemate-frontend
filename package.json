@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-kms": "^3.901.0",
+    "@hashgraph/sdk": "^2.74.0"
+  }
+}

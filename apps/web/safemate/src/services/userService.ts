@@ -1,5 +1,4 @@
-import { CognitoUserAttribute, CognitoUser } from 'amazon-cognito-identity-js';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { fetchAuthSession, updateUserAttribute } from 'aws-amplify/auth';
 import { CognitoService } from '../cognito';
 import { hederaConfig } from '../amplify-config';
 import type { UserProfile, UserAttributes, UserStats, SubscriptionTier } from '../types/user';
@@ -24,22 +23,22 @@ export class UserService {
    */
   static async getUserProfile(): Promise<UserProfile | null> {
     try {
-      const cognitoUser = await CognitoService.getCurrentUser();
-      if (!cognitoUser) return null;
+      const session = await fetchAuthSession();
+      if (!session.tokens?.idToken?.payload) return null;
 
-      const attributes = await this.getUserAttributes(cognitoUser);
+      const attributes = session.tokens.idToken.payload;
       
       return {
-        email: attributes.email || '',
-        username: attributes.preferred_username || attributes.email || '',
-        sub: attributes.sub || '',
-            hederaAccountId: attributes['custom:hedera_account'],
-    assetCount: attributes['custom:asset_count'] ? parseInt(attributes['custom:asset_count']) : 0,
-    subscriptionTier: attributes['custom:subscription_tier'] as 'basic' | 'premium' | 'enterprise' || 'basic',
-    mateTokenBalance: attributes['custom:mate_balance'] ? parseInt(attributes['custom:mate_balance']) : 0,
-    kycVerificationStatus: attributes['custom:kyc_status'] as 'pending' | 'approved' | 'rejected' | 'in_review' || 'pending',
-    lastBlockchainActivity: attributes['custom:last_activity'],
-    storageQuotaUsed: attributes['custom:storage_used'] ? parseInt(attributes['custom:storage_used']) : 0,
+        email: attributes.email as string || '',
+        username: attributes.preferred_username as string || attributes.email as string || '',
+        sub: attributes.sub as string || '',
+        hederaAccountId: attributes['custom:hedera_account'] as string,
+        assetCount: attributes['custom:asset_count'] ? parseInt(attributes['custom:asset_count'] as string) : 0,
+        subscriptionTier: attributes['custom:subscription_tier'] as 'basic' | 'premium' | 'enterprise' || 'basic',
+        mateTokenBalance: attributes['custom:mate_balance'] ? parseInt(attributes['custom:mate_balance'] as string) : 0,
+        kycVerificationStatus: attributes['custom:kyc_status'] as 'pending' | 'approved' | 'rejected' | 'in_review' || 'pending',
+        lastBlockchainActivity: attributes['custom:last_activity'] as string,
+        storageQuotaUsed: attributes['custom:storage_used'] ? parseInt(attributes['custom:storage_used'] as string) : 0,
       };
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -47,89 +46,62 @@ export class UserService {
     }
   }
 
-  /**
-   * Get user attributes from Cognito
-   */
-  private static getUserAttributes(cognitoUser: CognitoUser): Promise<Record<string, string>> {
-    return new Promise((resolve, reject) => {
-      cognitoUser.getUserAttributes((err: any, attributes: any) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        
-        const attributeMap: Record<string, string> = {};
-        attributes?.forEach((attr: any) => {
-          attributeMap[attr.Name] = attr.Value;
-        });
-        
-        resolve(attributeMap);
-      });
-    });
-  }
 
   /**
    * Update user profile with custom attributes
    */
   static async updateUserProfile(updates: Partial<UserProfile>): Promise<boolean> {
     try {
-      const cognitoUser = await CognitoService.getCurrentUser();
-      console.log('🔍 UserService: Cognito user object:', cognitoUser);
-      
-      if (!cognitoUser) {
-        console.log('❌ UserService: No Cognito user found');
-        return false;
-      }
-
       console.log('🔍 UserService: Attempting to update user attributes...');
-      const attributesToUpdate: CognitoUserAttribute[] = [];
 
-      // Map profile fields to Cognito attributes
+      // Map profile fields to Cognito attributes and update them individually
+      const updatePromises: Promise<void>[] = [];
+
       if (updates.hederaAccountId !== undefined) {
-        attributesToUpdate.push(new CognitoUserAttribute({
-          Name: 'custom:hedera_account',
-          Value: updates.hederaAccountId,
+        updatePromises.push(updateUserAttribute({
+          userAttributeKey: 'custom:hedera_account',
+          value: updates.hederaAccountId,
         }));
       }
       if (updates.assetCount !== undefined) {
-        attributesToUpdate.push(new CognitoUserAttribute({
-          Name: 'custom:asset_count',
-          Value: updates.assetCount.toString(),
+        updatePromises.push(updateUserAttribute({
+          userAttributeKey: 'custom:asset_count',
+          value: updates.assetCount.toString(),
         }));
       }
       if (updates.subscriptionTier !== undefined) {
-        attributesToUpdate.push(new CognitoUserAttribute({
-          Name: 'custom:subscription_tier',
-          Value: updates.subscriptionTier,
+        updatePromises.push(updateUserAttribute({
+          userAttributeKey: 'custom:subscription_tier',
+          value: updates.subscriptionTier,
         }));
       }
       if (updates.mateTokenBalance !== undefined) {
-        attributesToUpdate.push(new CognitoUserAttribute({
-          Name: 'custom:mate_balance',
-          Value: updates.mateTokenBalance.toString(),
+        updatePromises.push(updateUserAttribute({
+          userAttributeKey: 'custom:mate_balance',
+          value: updates.mateTokenBalance.toString(),
         }));
       }
       if (updates.kycVerificationStatus !== undefined) {
-        attributesToUpdate.push(new CognitoUserAttribute({
-          Name: 'custom:kyc_status',
-          Value: updates.kycVerificationStatus,
+        updatePromises.push(updateUserAttribute({
+          userAttributeKey: 'custom:kyc_status',
+          value: updates.kycVerificationStatus,
         }));
       }
       if (updates.lastBlockchainActivity !== undefined) {
-        attributesToUpdate.push(new CognitoUserAttribute({
-          Name: 'custom:last_activity',
-          Value: updates.lastBlockchainActivity,
+        updatePromises.push(updateUserAttribute({
+          userAttributeKey: 'custom:last_activity',
+          value: updates.lastBlockchainActivity,
         }));
       }
       if (updates.storageQuotaUsed !== undefined) {
-        attributesToUpdate.push(new CognitoUserAttribute({
-          Name: 'custom:storage_used',
-          Value: updates.storageQuotaUsed.toString(),
+        updatePromises.push(updateUserAttribute({
+          userAttributeKey: 'custom:storage_used',
+          value: updates.storageQuotaUsed.toString(),
         }));
       }
 
-      console.log('🔍 UserService: Attributes to update:', attributesToUpdate);
-      await this.updateUserAttributes(cognitoUser, attributesToUpdate);
+      console.log('🔍 UserService: Updating', updatePromises.length, 'attributes');
+      await Promise.all(updatePromises);
       console.log('✅ UserService: User attributes updated successfully');
       return true;
     } catch (error) {
@@ -138,20 +110,6 @@ export class UserService {
     }
   }
 
-  /**
-   * Update user attributes in Cognito
-   */
-  private static updateUserAttributes(cognitoUser: CognitoUser, attributes: CognitoUserAttribute[]): Promise<void> {
-    return new Promise((resolve, reject) => {
-      cognitoUser.updateAttributes(attributes, (err: any) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
-  }
 
   /**
    * Initialize user profile with default values

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeMate v2 Folder Hierarchy Creator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .test-section h3 {
+            color: #34495e;
+            margin-top: 0;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .warning {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .info {
+            color: #3498db;
+            font-weight: bold;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success { background-color: #d5f4e6; color: #27ae60; }
+        .status.error { background-color: #fadbd8; color: #e74c3c; }
+        .status.warning { background-color: #fef9e7; color: #f39c12; }
+        .status.info { background-color: #d6eaf8; color: #3498db; }
+        .hierarchy-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .folder-item {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #3498db;
+            background-color: white;
+        }
+        .subfolder {
+            margin-left: 20px;
+            border-left-color: #e74c3c;
+        }
+        .nested-subfolder {
+            margin-left: 40px;
+            border-left-color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌳 SafeMate v2 Folder Hierarchy Creator</h1>
+        
+        <div class="status info">
+            <strong>Purpose:</strong> Create NFT-based folder hierarchy with root folders and subfolders<br>
+            <strong>Collection Token:</strong> 0.0.6920175 (will be updated to NON_FUNGIBLE_UNIQUE)<br>
+            <strong>Account:</strong> 0.0.6890393
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 Authentication Setup</h3>
+            <p>Enter your Cognito JWT token to create folders:</p>
+            <input type="text" id="jwtToken" placeholder="Enter JWT Token from Cognito login">
+            <button onclick="setAuthToken()">Set Auth Token</button>
+            <div id="authStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📁 Create Root Folder</h3>
+            <p>Create the main folder that will contain subfolders:</p>
+            <input type="text" id="rootFolderName" placeholder="Root folder name" value="testfolder 01">
+            <button onclick="createRootFolder()" id="rootBtn">Create Root Folder</button>
+            <div id="rootResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📂 Create Subfolder</h3>
+            <p>Create a subfolder under the root folder:</p>
+            <input type="text" id="subfolderName" placeholder="Subfolder name" value="Documents">
+            <input type="text" id="parentFolderId" placeholder="Parent folder ID (will be filled automatically)">
+            <button onclick="createSubfolder()" id="subBtn">Create Subfolder</button>
+            <div id="subResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📂 Create Nested Subfolder</h3>
+            <p>Create a subfolder under the Documents folder:</p>
+            <input type="text" id="nestedSubfolderName" placeholder="Nested subfolder name" value="Work Files">
+            <input type="text" id="nestedParentFolderId" placeholder="Parent folder ID (will be filled automatically)">
+            <button onclick="createNestedSubfolder()" id="nestedBtn">Create Nested Subfolder</button>
+            <div id="nestedResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌳 View Folder Hierarchy</h3>
+            <p>Display the complete folder structure:</p>
+            <button onclick="viewHierarchy()" id="hierarchyBtn">View Hierarchy</button>
+            <div id="hierarchyResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Test Results Summary</h3>
+            <div id="testSummary">
+                <p class="info">Create folders above to see results summary</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://uvk4xxwjyg.execute-api.ap-southeast-2.amazonaws.com';
+        let authToken = '';
+        let testResults = {};
+        let createdFolders = {};
+
+        function setAuthToken() {
+            authToken = document.getElementById('jwtToken').value;
+            const status = document.getElementById('authStatus');
+            if (authToken) {
+                status.innerHTML = '<div class="status success">✅ Auth token set successfully</div>';
+            } else {
+                status.innerHTML = '<div class="status error">❌ Please enter a valid JWT token</div>';
+            }
+        }
+
+        function getHeaders() {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            };
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            return headers;
+        }
+
+        async function createRootFolder() {
+            const btn = document.getElementById('rootBtn');
+            const result = document.getElementById('rootResult');
+            const folderName = document.getElementById('rootFolderName').value;
+            
+            if (!folderName) {
+                result.innerHTML = '<div class="status error">❌ Please enter a folder name</div>';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/folders`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ 
+                        name: folderName,
+                        parentFolderId: null,
+                        description: 'Root folder for testing hierarchy'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="status success">✅ Root Folder Created Successfully</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    testResults.rootFolder = 'PASS';
+                    
+                    // Store folder info for subfolder creation
+                    createdFolders.root = {
+                        id: data.folder.id,
+                        name: data.folder.name,
+                        serialNumber: data.folder.serialNumber
+                    };
+                    
+                    // Update parent folder ID field
+                    document.getElementById('parentFolderId').value = data.folder.id;
+                } else {
+                    result.innerHTML = `<div class="status error">❌ Root Folder Creation Failed: ${response.status} ${response.statusText}</div>`;
+                    testResults.rootFolder = 'FAIL';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status error">❌ Root Folder Creation Error: ${error.message}</div>`;
+                testResults.rootFolder = 'ERROR';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Create Root Folder';
+            updateSummary();
+        }
+
+        async function createSubfolder() {
+            const btn = document.getElementById('subBtn');
+            const result = document.getElementById('subResult');
+            const subfolderName = document.getElementById('subfolderName').value;
+            const parentFolderId = document.getElementById('parentFolderId').value;
+            
+            if (!subfolderName || !parentFolderId) {
+                result.innerHTML = '<div class="status error">❌ Please enter subfolder name and ensure parent folder is created first</div>';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/folders`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ 
+                        name: subfolderName,
+                        parentFolderId: parentFolderId,
+                        description: 'Subfolder under root folder'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="status success">✅ Subfolder Created Successfully</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    testResults.subfolder = 'PASS';
+                    
+                    // Store folder info for nested subfolder creation
+                    createdFolders.subfolder = {
+                        id: data.folder.id,
+                        name: data.folder.name,
+                        serialNumber: data.folder.serialNumber,
+                        parentId: parentFolderId
+                    };
+                    
+                    // Update nested parent folder ID field
+                    document.getElementById('nestedParentFolderId').value = data.folder.id;
+                } else {
+                    result.innerHTML = `<div class="status error">❌ Subfolder Creation Failed: ${response.status} ${response.statusText}</div>`;
+                    testResults.subfolder = 'FAIL';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status error">❌ Subfolder Creation Error: ${error.message}</div>`;
+                testResults.subfolder = 'ERROR';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Create Subfolder';
+            updateSummary();
+        }
+
+        async function createNestedSubfolder() {
+            const btn = document.getElementById('nestedBtn');
+            const result = document.getElementById('nestedResult');
+            const nestedSubfolderName = document.getElementById('nestedSubfolderName').value;
+            const nestedParentFolderId = document.getElementById('nestedParentFolderId').value;
+            
+            if (!nestedSubfolderName || !nestedParentFolderId) {
+                result.innerHTML = '<div class="status error">❌ Please enter nested subfolder name and ensure parent subfolder is created first</div>';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/folders`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ 
+                        name: nestedSubfolderName,
+                        parentFolderId: nestedParentFolderId,
+                        description: 'Nested subfolder under Documents'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="status success">✅ Nested Subfolder Created Successfully</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    testResults.nestedSubfolder = 'PASS';
+                    
+                    // Store folder info
+                    createdFolders.nestedSubfolder = {
+                        id: data.folder.id,
+                        name: data.folder.name,
+                        serialNumber: data.folder.serialNumber,
+                        parentId: nestedParentFolderId
+                    };
+                } else {
+                    result.innerHTML = `<div class="status error">❌ Nested Subfolder Creation Failed: ${response.status} ${response.statusText}</div>`;
+                    testResults.nestedSubfolder = 'FAIL';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status error">❌ Nested Subfolder Creation Error: ${error.message}</div>`;
+                testResults.nestedSubfolder = 'ERROR';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Create Nested Subfolder';
+            updateSummary();
+        }
+
+        async function viewHierarchy() {
+            const btn = document.getElementById('hierarchyBtn');
+            const result = document.getElementById('hierarchyResult');
+            
+            btn.disabled = true;
+            btn.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/folders`, {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="status success">✅ Folder Hierarchy Retrieved</div>`;
+                    
+                    // Display hierarchy
+                    let hierarchyHtml = '<div class="hierarchy-display"><h4>🌳 Folder Hierarchy:</h4>';
+                    
+                    if (data.folders && data.folders.length > 0) {
+                        // Build hierarchy tree
+                        const rootFolders = data.folders.filter(f => !f.parentFolderId);
+                        const subfolders = data.folders.filter(f => f.parentFolderId);
+                        
+                        rootFolders.forEach(root => {
+                            hierarchyHtml += `<div class="folder-item">📁 ${root.name} (ID: ${root.id})</div>`;
+                            
+                            const children = subfolders.filter(s => s.parentFolderId === root.id);
+                            children.forEach(child => {
+                                hierarchyHtml += `<div class="folder-item subfolder">📂 ${child.name} (ID: ${child.id})</div>`;
+                                
+                                const grandchildren = subfolders.filter(s => s.parentFolderId === child.id);
+                                grandchildren.forEach(grandchild => {
+                                    hierarchyHtml += `<div class="folder-item nested-subfolder">📂 ${grandchild.name} (ID: ${grandchild.id})</div>`;
+                                });
+                            });
+                        });
+                    } else {
+                        hierarchyHtml += '<p>No folders found. Create some folders first!</p>';
+                    }
+                    
+                    hierarchyHtml += '</div>';
+                    hierarchyHtml += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    
+                    result.innerHTML += hierarchyHtml;
+                    testResults.hierarchy = 'PASS';
+                } else {
+                    result.innerHTML = `<div class="status error">❌ Hierarchy Retrieval Failed: ${response.status} ${response.statusText}</div>`;
+                    testResults.hierarchy = 'FAIL';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status error">❌ Hierarchy Retrieval Error: ${error.message}</div>`;
+                testResults.hierarchy = 'ERROR';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'View Hierarchy';
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('testSummary');
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(result => result === 'PASS').length;
+            
+            if (totalTests === 0) {
+                summary.innerHTML = '<p class="info">Create folders above to see results summary</p>';
+                return;
+            }
+            
+            let summaryHtml = `<h4>Test Results: ${passedTests}/${totalTests} Passed</h4>`;
+            summaryHtml += '<ul>';
+            
+            for (const [test, result] of Object.entries(testResults)) {
+                const statusClass = result === 'PASS' ? 'success' : result === 'FAIL' ? 'error' : 'warning';
+                const icon = result === 'PASS' ? '✅' : result === 'FAIL' ? '❌' : '⚠️';
+                summaryHtml += `<li class="${statusClass}">${icon} ${test}: ${result}</li>`;
+            }
+            
+            summaryHtml += '</ul>';
+            
+            if (passedTests === totalTests) {
+                summaryHtml += '<div class="status success">🎉 All tests passed! Folder hierarchy created successfully.</div>';
+            } else {
+                summaryHtml += '<div class="status warning">⚠️ Some tests failed. Check individual results above.</div>';
+            }
+            
+            summary.innerHTML = summaryHtml;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('SafeMate v2 Folder Hierarchy Creator loaded');
+        });
+    </script>
+</body>
+</html>

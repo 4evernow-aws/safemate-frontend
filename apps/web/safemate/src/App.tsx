@@ -23,6 +23,7 @@ import Community from './components/pages/Community';
 import Cultural from './components/pages/Cultural';
 import SportingTeams from './components/pages/SportingTeams';
 import LandingPage from './components/LandingPage';
+import TestLandingPage from './components/TestLandingPage';
 import ModernLogin from './components/ModernLogin';
 import AuthDebugger from './components/AuthDebugger';
 import DashboardRoutes from './dashboard/routing/DashboardRoutes';
@@ -128,6 +129,9 @@ function App() {
               <Routes>
               {/* Public Routes - No authentication required */}
               <Route path="/" element={<LandingPage />} />
+              
+              {/* Test Landing Page - Public Route for testing */}
+              <Route path="/testpage" element={<TestLandingPage />} />
               
               {/* FAQ Page - Public Route */}
               <Route path="/faq" element={<FAQ />} />

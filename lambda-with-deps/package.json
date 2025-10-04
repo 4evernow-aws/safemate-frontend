@@ -1,0 +1,12 @@
+{
+  "name": "safemate-hedera-service",
+  "main": "index.js",
+  "description": "SafeMate Hedera Service Lambda Function with Dependencies",
+  "dependencies": {
+    "@hashgraph/sdk": "^2.39.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-kms": "^3.0.0"
+  },
+  "version": "47.14.4"
+}

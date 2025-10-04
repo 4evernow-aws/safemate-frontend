@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeMate v2 API Tester</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .test-section h3 {
+            color: #34495e;
+            margin-top: 0;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .warning {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .info {
+            color: #3498db;
+            font-weight: bold;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success { background-color: #d5f4e6; color: #27ae60; }
+        .status.error { background-color: #fadbd8; color: #e74c3c; }
+        .status.warning { background-color: #fef9e7; color: #f39c12; }
+        .status.info { background-color: #d6eaf8; color: #3498db; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 SafeMate v2 API Tester - V47.13</h1>
+        
+        <div class="status info">
+            <strong>Deployment Status:</strong> V47.13 Successfully Deployed ✅<br>
+            <strong>API Gateway:</strong> uvk4xxwjyg.execute-api.ap-southeast-2.amazonaws.com<br>
+            <strong>Lambda Function:</strong> preprod-safemate-hedera-service<br>
+            <strong>Collection Token:</strong> 0.0.6920175
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 Authentication Setup</h3>
+            <p>Enter your Cognito JWT token to test authenticated endpoints:</p>
+            <input type="text" id="jwtToken" placeholder="Enter JWT Token from Cognito login">
+            <button onclick="setAuthToken()">Set Auth Token</button>
+            <div id="authStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📁 Folder Listing Test (V47.13 Key Fix)</h3>
+            <p>This tests the main V47.13 fix for folder listing with treasury token check:</p>
+            <button onclick="testFolderListing()" id="folderBtn">Test Folder Listing</button>
+            <div id="folderResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📂 Folder Creation Test</h3>
+            <p>Test creating a new folder to verify Hedera blockchain integration:</p>
+            <input type="text" id="folderName" placeholder="Enter folder name" value="Test Folder V47.13">
+            <button onclick="testFolderCreation()" id="createBtn">Create Folder</button>
+            <div id="createResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🏗️ Subfolder Creation Test</h3>
+            <p>Test hierarchical folder structure (V47.9-V47.11 fixes):</p>
+            <input type="text" id="parentFolderId" placeholder="Parent folder ID">
+            <input type="text" id="subfolderName" placeholder="Subfolder name" value="Test Subfolder">
+            <button onclick="testSubfolderCreation()" id="subfolderBtn">Create Subfolder</button>
+            <div id="subfolderResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Health Check</h3>
+            <p>Test basic API connectivity:</p>
+            <button onclick="testHealthCheck()" id="healthBtn">Test Health Check</button>
+            <div id="healthResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Test Results Summary</h3>
+            <div id="testSummary">
+                <p class="info">Run tests above to see results summary</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://uvk4xxwjyg.execute-api.ap-southeast-2.amazonaws.com';
+        let authToken = '';
+        let testResults = {};
+
+        function setAuthToken() {
+            authToken = document.getElementById('jwtToken').value;
+            const status = document.getElementById('authStatus');
+            if (authToken) {
+                status.innerHTML = '<div class="status success">✅ Auth token set successfully</div>';
+            } else {
+                status.innerHTML = '<div class="status error">❌ Please enter a valid JWT token</div>';
+            }
+        }
+
+        function getHeaders() {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            };
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            return headers;
+        }
+
+        async function testHealthCheck() {
+            const btn = document.getElementById('healthBtn');
+            const result = document.getElementById('healthResult');
+            
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`, {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="status success">✅ Health Check Passed: ${JSON.stringify(data)}</div>`;
+                    testResults.health = 'PASS';
+                } else {
+                    result.innerHTML = `<div class="status error">❌ Health Check Failed: ${response.status} ${response.statusText}</div>`;
+                    testResults.health = 'FAIL';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status error">❌ Health Check Error: ${error.message}</div>`;
+                testResults.health = 'ERROR';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Test Health Check';
+            updateSummary();
+        }
+
+        async function testFolderListing() {
+            const btn = document.getElementById('folderBtn');
+            const result = document.getElementById('folderResult');
+            
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/folders`, {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="status success">✅ Folder Listing Success: Found ${data.folders ? data.folders.length : 0} folders</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    testResults.folderListing = 'PASS';
+                } else {
+                    result.innerHTML = `<div class="status error">❌ Folder Listing Failed: ${response.status} ${response.statusText}</div>`;
+                    testResults.folderListing = 'FAIL';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status error">❌ Folder Listing Error: ${error.message}</div>`;
+                testResults.folderListing = 'ERROR';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Test Folder Listing';
+            updateSummary();
+        }
+
+        async function testFolderCreation() {
+            const btn = document.getElementById('createBtn');
+            const result = document.getElementById('createResult');
+            const folderName = document.getElementById('folderName').value;
+            
+            if (!folderName) {
+                result.innerHTML = '<div class="status error">❌ Please enter a folder name</div>';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/folders`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ name: folderName })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="status success">✅ Folder Created Successfully</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    testResults.folderCreation = 'PASS';
+                } else {
+                    result.innerHTML = `<div class="status error">❌ Folder Creation Failed: ${response.status} ${response.statusText}</div>`;
+                    testResults.folderCreation = 'FAIL';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status error">❌ Folder Creation Error: ${error.message}</div>`;
+                testResults.folderCreation = 'ERROR';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Create Folder';
+            updateSummary();
+        }
+
+        async function testSubfolderCreation() {
+            const btn = document.getElementById('subfolderBtn');
+            const result = document.getElementById('subfolderResult');
+            const parentId = document.getElementById('parentFolderId').value;
+            const subfolderName = document.getElementById('subfolderName').value;
+            
+            if (!parentId || !subfolderName) {
+                result.innerHTML = '<div class="status error">❌ Please enter both parent folder ID and subfolder name</div>';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/folders/${parentId}/subfolders`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ name: subfolderName })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="status success">✅ Subfolder Created Successfully</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    testResults.subfolderCreation = 'PASS';
+                } else {
+                    result.innerHTML = `<div class="status error">❌ Subfolder Creation Failed: ${response.status} ${response.statusText}</div>`;
+                    testResults.subfolderCreation = 'FAIL';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status error">❌ Subfolder Creation Error: ${error.message}</div>`;
+                testResults.subfolderCreation = 'ERROR';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Create Subfolder';
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('testSummary');
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(result => result === 'PASS').length;
+            
+            if (totalTests === 0) {
+                summary.innerHTML = '<p class="info">Run tests above to see results summary</p>';
+                return;
+            }
+            
+            let summaryHtml = `<h4>Test Results: ${passedTests}/${totalTests} Passed</h4>`;
+            summaryHtml += '<ul>';
+            
+            for (const [test, result] of Object.entries(testResults)) {
+                const statusClass = result === 'PASS' ? 'success' : result === 'FAIL' ? 'error' : 'warning';
+                const icon = result === 'PASS' ? '✅' : result === 'FAIL' ? '❌' : '⚠️';
+                summaryHtml += `<li class="${statusClass}">${icon} ${test}: ${result}</li>`;
+            }
+            
+            summaryHtml += '</ul>';
+            
+            if (passedTests === totalTests) {
+                summaryHtml += '<div class="status success">🎉 All tests passed! V47.13 is working correctly.</div>';
+            } else {
+                summaryHtml += '<div class="status warning">⚠️ Some tests failed. Check individual results above.</div>';
+            }
+            
+            summary.innerHTML = summaryHtml;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('SafeMate v2 API Tester loaded - V47.13');
+        });
+    </script>
+</body>
+</html>

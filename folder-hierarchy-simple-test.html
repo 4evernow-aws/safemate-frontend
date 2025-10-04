@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeMate v2 Simple Folder Creator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .success { color: #27ae60; font-weight: bold; }
+        .error { color: #e74c3c; font-weight: bold; }
+        .warning { color: #f39c12; font-weight: bold; }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌳 SafeMate v2 Simple Folder Creator</h1>
+        
+        <div class="section">
+            <h3>🔐 Step 1: Get JWT Token</h3>
+            <p>1. Open SafeMate app and login</p>
+            <p>2. Open Developer Tools (F12)</p>
+            <p>3. Go to Console tab</p>
+            <p>4. Type: <code>localStorage.getItem('idToken')</code></p>
+            <p>5. Copy the token (without quotes)</p>
+        </div>
+
+        <div class="section">
+            <h3>🔑 Step 2: Enter JWT Token</h3>
+            <input type="text" id="jwtToken" placeholder="Paste your JWT token here (starts with eyJ...)">
+            <button onclick="setToken()">Set Token</button>
+            <div id="tokenStatus"></div>
+        </div>
+
+        <div class="section">
+            <h3>📁 Step 3: Create Root Folder</h3>
+            <input type="text" id="folderName" placeholder="Folder name" value="testfolder 01">
+            <button onclick="createFolder()" id="createBtn">Create Root Folder</button>
+            <div id="result"></div>
+        </div>
+
+        <div class="section">
+            <h3>🌳 Step 4: View Results</h3>
+            <button onclick="viewFolders()" id="viewBtn">View All Folders</button>
+            <div id="foldersResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://uvk4xxwjyg.execute-api.ap-southeast-2.amazonaws.com';
+        let token = '';
+
+        function setToken() {
+            token = document.getElementById('jwtToken').value.trim();
+            const status = document.getElementById('tokenStatus');
+            
+            if (token && token.startsWith('eyJ')) {
+                // Check for problematic characters
+                const hasNonAscii = /[^\x00-\x7F]/.test(token);
+                if (hasNonAscii) {
+                    status.innerHTML = '<div class="warning">⚠️ Token contains non-ASCII characters - will be cleaned automatically</div>';
+                } else {
+                    status.innerHTML = '<div class="success">✅ Token set successfully</div>';
+                }
+            } else {
+                status.innerHTML = '<div class="error">❌ Invalid token format</div>';
+            }
+        }
+
+        async function createFolder() {
+            const btn = document.getElementById('createBtn');
+            const result = document.getElementById('result');
+            const folderName = document.getElementById('folderName').value;
+            
+            if (!token) {
+                result.innerHTML = '<div class="error">❌ Please set JWT token first</div>';
+                return;
+            }
+            
+            if (!folderName) {
+                result.innerHTML = '<div class="error">❌ Please enter folder name</div>';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            
+            try {
+                // Create request body
+                const body = JSON.stringify({
+                    name: folderName,
+                    parentFolderId: null,
+                    description: 'Root folder created via test tool'
+                });
+                
+                // Clean the token to remove any problematic characters
+                const cleanToken = token.replace(/[^\x00-\x7F]/g, '');
+                
+                // Create headers using object notation to avoid encoding issues
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer ' + cleanToken
+                };
+                
+                // Make request
+                const response = await fetch(API_BASE + '/folders', {
+                    method: 'POST',
+                    headers: headers,
+                    body: body
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = '<div class="success">✅ Folder created successfully!</div><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                } else {
+                    const errorText = await response.text();
+                    result.innerHTML = '<div class="error">❌ Error: ' + response.status + ' ' + response.statusText + '</div><pre>' + errorText + '</pre>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="error">❌ Network error: ' + error.message + '</div>';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Create Root Folder';
+        }
+
+        async function viewFolders() {
+            const btn = document.getElementById('viewBtn');
+            const result = document.getElementById('foldersResult');
+            
+            if (!token) {
+                result.innerHTML = '<div class="error">❌ Please set JWT token first</div>';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Loading...';
+            
+            try {
+                // Clean the token to remove any problematic characters
+                const cleanToken = token.replace(/[^\x00-\x7F]/g, '');
+                
+                // Create headers using object notation
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer ' + cleanToken
+                };
+                
+                // Make request
+                const response = await fetch(API_BASE + '/folders', {
+                    method: 'GET',
+                    headers: headers
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = '<div class="success">✅ Folders loaded successfully!</div><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                } else {
+                    const errorText = await response.text();
+                    result.innerHTML = '<div class="error">❌ Error: ' + response.status + ' ' + response.statusText + '</div><pre>' + errorText + '</pre>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="error">❌ Network error: ' + error.message + '</div>';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'View All Folders';
+        }
+    </script>
+</body>
+</html>

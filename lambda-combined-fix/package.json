@@ -1,0 +1,12 @@
+{
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@hashgraph/sdk": "^2.39.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "@aws-sdk/client-kms": "^3.0.0"
+  },
+  "description": "SafeMate Hedera Service Lambda Function - V47.14 Complete with Treasury Token Detection Fix",
+  "version": "47.14.3",
+  "name": "safemate-hedera-service"
+}
